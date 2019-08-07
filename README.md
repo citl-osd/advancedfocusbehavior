@@ -1,10 +1,10 @@
-kivy-garden demo flower
+kivy-garden Advanced Focus Behavior
 ========================
 
-[![Coverage Status](https://coveralls.io/repos/github/kivy-garden/flower/badge.svg?branch=master)](https://coveralls.io/github/kivy-garden/flower?branch=master)
-[![Build Status](https://travis-ci.com/kivy-garden/flower.svg?branch=master)](https://travis-ci.com/kivy-garden/flower)
+[![Coverage Status](https://coveralls.io/repos/github/kivy-garden/advancedfocusbehavior/badge.svg?branch=master)](https://coveralls.io/github/kivy-garden/advancedfocusbehavior?branch=master)
+[![Build Status](https://travis-ci.com/kivy-garden/advancedfocusbehavior.svg?branch=master)](https://travis-ci.com/kivy-garden/advancedfocusbehavior)
 
-A kivy garden flower that shows how to add flowers.
+An extension of Kivy's FocusBehavior for easier keyboard navigation.
 
 See https://kivy-garden.github.io/flower/ for the rendered flower docs.
 
