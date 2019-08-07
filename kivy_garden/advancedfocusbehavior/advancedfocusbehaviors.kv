@@ -1,0 +1,17 @@
+#:kivy 1.11.1
+
+#:set TRANSPARENT (0, 0, 0, 0)
+
+<AdvancedFocusWidget@FocusBehavior+EventDispatcher+Widget>:
+    canvas.before:
+        Color:
+            rgba: self.highlight_color if self.focus else TRANSPARENT
+        Rectangle:
+            pos: self.x - 2, self.y - 2
+            size: self.width + 4, self.height + 4
+
+        Color:
+            rgba: self.background_color if self.focus else TRANSPARENT
+        Rectangle:
+            pos: self.pos
+            size: self.size
