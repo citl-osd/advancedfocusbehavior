@@ -17,8 +17,8 @@ from kivy.uix.widget import Widget
 
 
 # Color constants
-BACKGROUND = (0, 0, 0, 1)               # Black
-HIGHLIGHT = (0.4471, 0.7765, 0.8118, 1) # Blue
+BACKGROUND = (0, 0, 0, 1)                   # Black
+HIGHLIGHT = (0.4471, 0.7765, 0.8118, 1)     # Blue
 
 
 # TODO: move this to widgets
@@ -48,6 +48,8 @@ class FocusButtonBehavior(FocusBehavior, ButtonBehavior, EventDispatcher):
             self.dispatch('on_press')
             return True
 
+        return False
+
 
 class FocusToggleButtonBehavior(FocusBehavior, ToggleButtonBehavior, EventDispatcher):
     """"""
@@ -57,3 +59,6 @@ class FocusToggleButtonBehavior(FocusBehavior, ToggleButtonBehavior, EventDispat
 
         if keycode[1] in ('enter', 'numpadenter'):
             self._do_press()
+            return True
+
+        return False

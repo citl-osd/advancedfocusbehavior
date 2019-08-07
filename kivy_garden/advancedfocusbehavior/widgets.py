@@ -40,6 +40,21 @@ class FocusButton(FocusButtonBehavior, FocusWidget, Button):
 
 class FocusCarousel(FocusWidget, Carousel):
     """"""
+    def key_to_load_type(self, key):
+        """"""
+
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        if super().keyboard_on_key_down(window, keycode, text, modifiers):
+            return True
+
+        load_type = self.key_to_load_type(keycode[1])
+
+        if load_type:
+            self.load_next(mode=load_type)
+            return True
+
+        return False
 
 
 class FocusCheckBox(FocusToggleButtonBehavior, FocusWidget, CheckBox):
