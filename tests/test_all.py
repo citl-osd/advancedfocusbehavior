@@ -8,12 +8,10 @@ result = subprocess.run(['pytest', '--collect-only', '--ignore=tests/test_all.py
                         stdout=subprocess.PIPE, text=True, check=True)
 
 tests = result.stdout.split('\n')[:-3]
-#print(tests)
 
 
 @pytest.mark.parametrize('test', tests)
 def test_all(test):
-    print(test)
     test_results = subprocess.run(['pytest', test])
     assert test_results.returncode == 0
 

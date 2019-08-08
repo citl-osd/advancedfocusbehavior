@@ -1,5 +1,5 @@
 import pyautogui
-pyautogui.PAUSE = 0.5
+#pyautogui.PAUSE = 0.5
 import pytest
 
 import kivy
@@ -52,8 +52,13 @@ def test_focus_buttons():
     def push_me(*args):
         self.got_pushed = True
 
+    container = BoxLayout()
+
     app = App.get_running_app()
-    app.root = FocusButton(on_press=push_me)
+    btn = FocusButton(on_press=push_me)
+    container.add_widget(btn)
+    app.root = container
+    assert btn.focus
 
     pyautogui.press('enter')
     assert self.got_pushed

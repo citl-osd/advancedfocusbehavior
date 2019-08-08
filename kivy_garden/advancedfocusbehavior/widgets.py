@@ -33,9 +33,12 @@ class FocusAccordion(FocusWidget, Accordion):
 # FocusActionBar and friends
 
 
-class FocusButton(FocusButtonBehavior, FocusWidget, Button):
+class FocusButton(FocusButtonBehavior, Button, FocusWidget):
     """"""
-    # This is probably complete as-is
+    def __init__(self, **kwargs):
+        FocusButtonBehavior.__init__(self, **kwargs)
+        FocusWidget.__init__(self, **kwargs)
+        Button.__init__(self, **kwargs)
 
 
 class FocusCarousel(FocusWidget, Carousel):

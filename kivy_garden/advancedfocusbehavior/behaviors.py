@@ -8,6 +8,7 @@ from pathlib import Path
 from kivy.lang.builder import Builder
 Builder.load_file(str(Path(__file__).parent.joinpath('advancedfocusbehaviors.kv').resolve()))
 
+from kivy.app import App
 from kivy.event import EventDispatcher
 from kivy.graphics import Color, Rectangle
 from kivy.uix.behaviors.button import ButtonBehavior
@@ -15,7 +16,7 @@ from kivy.uix.behaviors.focus import FocusBehavior
 from kivy.uix.behaviors.togglebutton import ToggleButtonBehavior
 from kivy.uix.widget import Widget
 
-from kivy_garden.advancedfocusbehavior.misc import find_first_focused
+from kivy_garden.advancedfocusbehavior.misc import find_first_focused, focus_first
 
 
 # Color constants
@@ -23,42 +24,70 @@ BACKGROUND = (0, 0, 0, 1)                   # Black
 HIGHLIGHT = (0.4471, 0.7765, 0.8118, 1)     # Blue
 
 
+class FocusApp(App):
+    """"""
+    @property
+    def root(self):
+        print('getting root')
+        return self._root
+
+    @root.setter
+    def root(self, r):
+        print('setting root')
+        self._root = r
+        if r:
+            print(f'setting focus: {focus_first(r)}')
+
+
 # TODO: move this to widgets
 class FocusWidget(FocusBehavior, Widget):
     """"""
 
-    def __init__(self, highlight_color=HIGHLIGHT, background_color=BACKGROUND, **kwargs):
+    def __init__(self, highlight_color=HIGHLIGHT, highlight_bg_color=BACKGROUND, **kwargs):
+        FocusBehavior.__init__(self, **kwargs)
         Widget.__init__(self, **kwargs)
         self.highlight_color = highlight_color
-        self.background_color = background_color
+        self.highlight_bg_color = highlight_bg_color
+        self.is_focusable = True
 
         self.bind(focus=self.focus_change, parent=self.check_for_focused_widget)
 
 
     def check_for_focused_widget(self, *args):
+        print('checking focus')
         if not find_first_focused(self):
+            print('getting focus')
             self.focus = True
+            print(self.focus)
 
 
     def focus_change(self, *args):
         # TODO: assure that this widget is visible when it gains focus
-        pass
+        print(f'focus change: {self.focus}, disabled: {self.disabled}, focusable: {self.is_focusable}')
 
 
-class FocusButtonBehavior(FocusBehavior, ButtonBehavior, EventDispatcher):
+class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
     """"""
+    def __init__(self, **kwargs):
+        print('init')
+        FocusBehavior.__init__(self, **kwargs)
+        self.is_focusable = True
+        ButtonBehavior.__init__(self, **kwargs)
+
+
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
             return True
 
         if keycode[1] in ('enter', 'numpadenter'):
+            print('dispatching')
             self.dispatch('on_press')
             return True
 
         return False
 
 
-class FocusToggleButtonBehavior(FocusBehavior, ToggleButtonBehavior, EventDispatcher):
+class FocusToggleButtonBehavior(FocusBehavior, ToggleButtonBehavior):
     """"""
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
