@@ -10,5 +10,12 @@ by the demo flower.
 
 __version__ = '0.1.0.dev0'
 
-from behaviors import *
-from widgets import *
+from pathlib import Path
+import sys
+
+focus_dest = str(Path(__file__).parents[1].resolve())
+if focus_dest not in sys.path:
+    sys.path.append(focus_dest)
+
+from kivy_garden.advancedfocusbehavior.behaviors import *
+from kivy_garden.advancedfocusbehavior.widgets import *

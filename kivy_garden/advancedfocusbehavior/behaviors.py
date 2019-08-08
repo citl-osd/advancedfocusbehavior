@@ -22,11 +22,11 @@ HIGHLIGHT = (0.4471, 0.7765, 0.8118, 1)     # Blue
 
 
 # TODO: move this to widgets
-class FocusWidget(FocusBehavior, EventDispatcher, Widget):
+class FocusWidget(FocusBehavior, Widget):
     """"""
 
     def __init__(self, highlight_color=HIGHLIGHT, background_color=BACKGROUND, **kwargs):
-        super().__init__(**kwargs)
+        Widget.__init__(self, **kwargs)
         self.highlight_color = highlight_color
         self.background_color = background_color
 

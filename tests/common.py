@@ -6,14 +6,14 @@ from kivy.clock import Clock
 from pygetwindow import getWindowsWithTitle
 
 from functools import wraps
+from pathlib import Path
+import sys
 
+focus_dest = str(Path(__file__).parents[1].resolve())
+if focus_dest not in sys.path:
+    sys.path.append(focus_dest)
 
 test_window_name = 'advancedfocusbehavior_test'
-
-
-def focus_kivy_window():
-    getWindowsWithTitle(test_window_name)[0].focus()
-
 
 def run_in_app(func):
 
@@ -22,13 +22,13 @@ def run_in_app(func):
 
         def func_as_callback(dt):
             try:
-                focus_kivy_window()
+                #getWindowsWithTitle(test_window_name)[0].focus()
                 func()
 
             finally:
                 App.get_running_app().stop()
 
-        Clock.schedule_once(func_as_callback)
+        Clock.schedule_once(func_as_callback, 1)
         app = App()
         app.title = test_window_name
         app.run()

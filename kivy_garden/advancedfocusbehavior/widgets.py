@@ -23,7 +23,7 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.treeview import TreeView, TreeViewNode
 from kivy.uix.videoplayer import VideoPlayer
 
-from behaviors import FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior
+from kivy_garden.advancedfocusbehavior.behaviors import FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior
 
 
 class FocusAccordion(FocusWidget, Accordion):
