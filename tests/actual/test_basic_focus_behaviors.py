@@ -1,4 +1,5 @@
 import pyautogui
+pyautogui.PAUSE = 0.5
 import pytest
 
 import kivy
@@ -14,15 +15,17 @@ from kivy_garden.advancedfocusbehavior import FocusButton, FocusCarousel, FocusT
 @run_in_app
 def test_get_focus_upon_entering():
     # If there are no focused widgets, the first focusable widget should receive focus
+    container = BoxLayout()
     widg = FocusWidget()
     app = App.get_running_app()
-    app.root = widg
+    container.add_widget(widg)
+    app.root = container
     assert widg.focus
 
 
 @run_in_app
 def test_cycle_through_focusables():
-    container = BoxLayout(orientation='vertical')
+    container = BoxLayout()
     focus_widgets = [FocusWidget() for _ in range(3)]
 
     for widg in focus_widgets:
@@ -32,7 +35,7 @@ def test_cycle_through_focusables():
     app = App.get_running_app()
     app.root = container
 
-    #assert focus_1.focus   # tested in test_get_focus_upon_entering
+    assert focus_1.focus   # tested in test_get_focus_upon_entering
     pyautogui.press('tab')
     assert focus_2.focus
 

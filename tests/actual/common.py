@@ -9,7 +9,7 @@ from functools import wraps
 from pathlib import Path
 import sys
 
-focus_dest = str(Path(__file__).parents[1].resolve())
+focus_dest = str(Path(__file__).parents[2].resolve())
 if focus_dest not in sys.path:
     sys.path.append(focus_dest)
 

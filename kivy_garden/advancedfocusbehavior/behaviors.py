@@ -15,6 +15,8 @@ from kivy.uix.behaviors.focus import FocusBehavior
 from kivy.uix.behaviors.togglebutton import ToggleButtonBehavior
 from kivy.uix.widget import Widget
 
+from kivy_garden.advancedfocusbehavior.misc import find_first_focused
+
 
 # Color constants
 BACKGROUND = (0, 0, 0, 1)                   # Black
@@ -30,7 +32,12 @@ class FocusWidget(FocusBehavior, Widget):
         self.highlight_color = highlight_color
         self.background_color = background_color
 
-        self.bind(focus=self.focus_change)
+        self.bind(focus=self.focus_change, parent=self.check_for_focused_widget)
+
+
+    def check_for_focused_widget(self, *args):
+        if not find_first_focused(self):
+            self.focus = True
 
 
     def focus_change(self, *args):
