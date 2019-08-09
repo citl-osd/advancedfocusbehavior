@@ -1,7 +1,3 @@
-import pyautogui
-#pyautogui.PAUSE = 0.5
-import pytest
-
 import kivy
 kivy.require('1.11.1')
 
@@ -10,6 +6,7 @@ from kivy.clock import Clock
 from kivy.network.urlrequest import UrlRequest
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
+import pytest
 
 from common import run_in_app, test_window_name
 from kivy_garden.advancedfocusbehavior import FocusButton, FocusCarousel, FocusTextInput, FocusWidget
@@ -43,11 +40,10 @@ def test_pyautogui_interaction():
         finally:
             app.stop()
 
-    Clock.schedule_once(lambda _: UrlRequest(f'http://localhost:8090/some_keys', check_keys), 5)
+    Clock.schedule_once(lambda _: UrlRequest('http://localhost:8090/type?keys=some_keys', check_keys), 1)
     return True
 
 
-@pytest.mark.skip
 @run_in_app
 def test_cycle_through_focusables():
     container = BoxLayout()
@@ -60,23 +56,36 @@ def test_cycle_through_focusables():
     app = App.get_running_app()
     app.root.add_widget(container)
 
-    assert focus_1.focus   # tested in test_get_focus_upon_entering
-    assert not focus_2.focus
-    assert not focus_3.focus
+    def cycle_prev(req, result):
+        try:
+            assert focus_1.focus
+            assert not focus_2.focus
+            assert not focus_3.focus
 
-    pyautogui.press('tab')
-    assert not focus_1.focus
-    assert focus_2.focus
-    assert not focus_3.focus
+        finally:
+            app.stop()
 
-    pyautogui.hotkey('shift', 'tab')
+
+    def cycle_next(req, result):
+        try:
+            assert not focus_1.focus
+            assert focus_2.focus
+            assert not focus_3.focus
+
+            Clock.schedule_once(lambda _: UrlRequest('http://localhost:8090/hotkey?keys=["shift", "tab"]', cycle_prev), 1)
+
+        except AssertionError:
+            app.stop()
+
     assert focus_1.focus
     assert not focus_2.focus
     assert not focus_3.focus
 
+    Clock.schedule_once(lambda _: UrlRequest('http://localhost:8090/press?key=tab', cycle_next), 1)
+    return True
+
 
 # TODO: move to different file
-@pytest.mark.skip
 @run_in_app
 def test_focus_buttons():
     app = App.get_running_app()
@@ -87,12 +96,13 @@ def test_focus_buttons():
         print('pushed called')
         self.got_pushed = True
 
-    def push_test(got_pushed):
+    def push_test(req, result):
         try:
-            assert got_pushed
+            assert self.got_pushed
 
         finally:
             app.stop()
+
 
     container = BoxLayout()
     btn = FocusButton(on_press=push_me)
@@ -100,7 +110,5 @@ def test_focus_buttons():
     app.root.add_widget(container)
     assert btn.focus
 
-    Clock.schedule_once(lambda _: pyautogui.press('enter'))
-    Clock.schedule_once(lambda _: push_test(self.got_pushed), 0.1)
+    Clock.schedule_once(lambda _: UrlRequest('http://localhost:8090/press?key=enter', push_test), 5)
     return True
-    #assert self.got_pushed
