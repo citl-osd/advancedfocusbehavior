@@ -28,16 +28,13 @@ class FocusApp(App):
     """"""
     @property
     def root(self):
-        print('getting root')
         return self._root
 
     @root.setter
     def root(self, r):
-        print('setting root')
         self._root = r
         if r:
-            focused = focus_first(r)
-            print(f'setting focus: {focused} ({focused.focus})')
+            focus_first(r)
 
 
 # TODO: move this to widgets
@@ -54,11 +51,7 @@ class FocusWidget(FocusBehavior, Widget):
 
 
     def check_for_focused_widget(self, *args):
-        print('checking focus')
-        if not find_first_focused(self):
-            print('getting focus')
-            self.focus = True
-            print(self.focus)
+        self.focus = not bool(find_first_focused(self))
 
 
     def focus_change(self, *args):
@@ -69,7 +62,6 @@ class FocusWidget(FocusBehavior, Widget):
 class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
     """"""
     def __init__(self, **kwargs):
-        print('init')
         FocusBehavior.__init__(self, **kwargs)
         ButtonBehavior.__init__(self, **kwargs)
 
@@ -79,7 +71,6 @@ class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
             return True
 
         if keycode[1] in ('enter', 'numpadenter'):
-            print('dispatching')
             self.dispatch('on_press')
             return True
 
