@@ -10,6 +10,7 @@ def focusable_widgets(start):
 def focus_first(widg):
     """"""
     for w in focusable_widgets(widg):   # TODO: do this in a less weird way
+        #breakpoint()
         w.focus = True
         return w
 

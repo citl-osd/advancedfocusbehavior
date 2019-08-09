@@ -36,7 +36,8 @@ class FocusApp(App):
         print('setting root')
         self._root = r
         if r:
-            print(f'setting focus: {focus_first(r)}')
+            focused = focus_first(r)
+            print(f'setting focus: {focused} ({focused.focus})')
 
 
 # TODO: move this to widgets
@@ -44,13 +45,12 @@ class FocusWidget(FocusBehavior, Widget):
     """"""
 
     def __init__(self, highlight_color=HIGHLIGHT, highlight_bg_color=BACKGROUND, **kwargs):
-        FocusBehavior.__init__(self, **kwargs)
         Widget.__init__(self, **kwargs)
+        #FocusBehavior.__init__(self, **kwargs)
         self.highlight_color = highlight_color
         self.highlight_bg_color = highlight_bg_color
-        self.is_focusable = True
 
-        self.bind(focus=self.focus_change, parent=self.check_for_focused_widget)
+        self.bind(parent=self.check_for_focused_widget)
 
 
     def check_for_focused_widget(self, *args):
@@ -71,7 +71,6 @@ class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
     def __init__(self, **kwargs):
         print('init')
         FocusBehavior.__init__(self, **kwargs)
-        self.is_focusable = True
         ButtonBehavior.__init__(self, **kwargs)
 
 
