@@ -50,13 +50,14 @@ class FocusWidget(FocusBehavior, Widget):
         self.highlight_bg_color = highlight_bg_color
 
         Widget.__init__(self, **kwargs)
-        self.bind(parent=lambda *args: Clock.schedule_once(self.check_for_focused_widget))
+        self.bind(parent=self.check_for_focused_widget)
         #FocusBehavior.__init__(self, **kwargs)
 
 
     def check_for_focused_widget(self, *args):
         if not find_first_focused(self):
             focus_first(self)
+        #self.focus = not bool(find_first_focused(self))
 
 
     def focus_change(self, *args):
