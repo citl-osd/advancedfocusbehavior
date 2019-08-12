@@ -41,13 +41,17 @@ class FocusApp(App):
 class FocusWidget(FocusBehavior, Widget):
     """"""
 
-    def __init__(self, highlight_color=HIGHLIGHT, highlight_bg_color=BACKGROUND, **kwargs):
-        Widget.__init__(self, **kwargs)
-        #FocusBehavior.__init__(self, **kwargs)
+    def __init__(self, highlight_color=HIGHLIGHT, highlight_bg_color=BACKGROUND,
+                 draw_focus=True, **kwargs):
+
+        self.draw_focus = draw_focus
         self.highlight_color = highlight_color
         self.highlight_bg_color = highlight_bg_color
 
+        Widget.__init__(self, **kwargs)
         self.bind(parent=self.check_for_focused_widget)
+        #FocusBehavior.__init__(self, **kwargs)
+
 
 
     def check_for_focused_widget(self, *args):

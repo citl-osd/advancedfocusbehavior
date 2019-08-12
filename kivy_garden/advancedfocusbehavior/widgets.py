@@ -36,8 +36,8 @@ class FocusAccordion(FocusWidget, Accordion):
 class FocusButton(FocusButtonBehavior, Button, FocusWidget):
     """"""
     def __init__(self, **kwargs):
-        FocusButtonBehavior.__init__(self, **kwargs)
         FocusWidget.__init__(self, **kwargs)
+        FocusButtonBehavior.__init__(self, **kwargs)
         Button.__init__(self, **kwargs)
 
 
@@ -117,8 +117,9 @@ class FocusTextInput(FocusWidget, TextInput):   # TextInput already uses FocusBe
     """"""
     def __init__(self, **kwargs):
         kwargs.pop('focus', None)
+        self.draw_focus = False
         TextInput.__init__(self, **kwargs)
-        FocusWidget.__init__(self, **kwargs)
+        FocusWidget.__init__(self, draw_focus=False, **kwargs)
 
 
 class FocusToggleButton(FocusWidget, FocusToggleButtonBehavior, ToggleButton):

@@ -2,16 +2,16 @@
 
 #:set TRANSPARENT (0, 0, 0, 0)
 
-<AdvancedFocusWidget@FocusBehavior+Widget>:
+<FocusWidget@FocusBehavior+Widget>:
     canvas.before:
         Color:
-            rgba: self.highlight_color if self.focus else TRANSPARENT
+            rgba: self.highlight_color if self.draw_focus and self.focus else TRANSPARENT
         Rectangle:
             pos: self.x - 2, self.y - 2
             size: self.width + 4, self.height + 4
 
         Color:
-            rgba: self.highlight_bg_color if self.focus else TRANSPARENT
+            rgba: self.highlight_bg_color if self.draw_focus and self.focus else TRANSPARENT
         Rectangle:
-            pos: self.pos
-            size: self.size
+            pos: self.x + 2, self.y + 2
+            size: self.width - 4, self.height - 4
