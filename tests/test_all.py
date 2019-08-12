@@ -5,7 +5,11 @@ import sys
 
 # Get list of tests
 result = subprocess.run(['pytest', '--collect-only', '--ignore=tests/test_all.py', '-q', '--disable-warnings'],
-                        stdout=subprocess.PIPE, text=True, check=True)
+                        stdout=subprocess.PIPE, text=True)
+
+if result.returncode != 0:
+    print(result.stdout)
+    sys.exit(result.returncode)
 
 tests = result.stdout.split('\n')[:-3]
 

@@ -116,9 +116,8 @@ class FocusTabbedPanel(FocusWidget, TabbedPanel):
 class FocusTextInput(FocusWidget, TextInput):   # TextInput already uses FocusBehavior and highlights itself
     """"""
     def __init__(self, **kwargs):
-        kwargs.pop('focus', None)
         self.draw_focus = False
-        TextInput.__init__(self, **kwargs)
+        TextInput.__init__(self, write_tab=False, **kwargs)
         FocusWidget.__init__(self, draw_focus=False, **kwargs)
 
 

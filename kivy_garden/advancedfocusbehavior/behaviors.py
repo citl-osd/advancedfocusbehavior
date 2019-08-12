@@ -9,6 +9,7 @@ from kivy.lang.builder import Builder
 Builder.load_file(str(Path(__file__).parent.joinpath('advancedfocusbehaviors.kv').resolve()))
 
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.event import EventDispatcher
 from kivy.graphics import Color, Rectangle
 from kivy.uix.behaviors.button import ButtonBehavior
@@ -49,13 +50,13 @@ class FocusWidget(FocusBehavior, Widget):
         self.highlight_bg_color = highlight_bg_color
 
         Widget.__init__(self, **kwargs)
-        self.bind(parent=self.check_for_focused_widget)
+        self.bind(parent=lambda *args: Clock.schedule_once(self.check_for_focused_widget))
         #FocusBehavior.__init__(self, **kwargs)
 
 
-
     def check_for_focused_widget(self, *args):
-        self.focus = not bool(find_first_focused(self))
+        if not find_first_focused(self):
+            focus_first(self)
 
 
     def focus_change(self, *args):

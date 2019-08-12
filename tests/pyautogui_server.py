@@ -1,3 +1,7 @@
+##############
+# DEPRECATED #
+##############
+
 import pyautogui
 import pygetwindow
 

@@ -16,26 +16,32 @@ if focus_dest not in sys.path:
 
 test_window_name = 'advancedfocusbehavior_test'
 
-def run_in_app(func):
+def run_in_app(app_class=App):
 
-    @wraps(func)
-    def wrapper():
+    @wraps(run_in_app)
+    def real_run_in_app(func):
 
-        def func_as_callback(dt):
+        @wraps(func)
+        def wrapper():
 
-            # Tests that need to do async things (like keypresses) must close themselves
-            keep_app_alive = False
-            try:
-                keep_app_alive = func()
+            def func_as_callback(dt):
 
-            finally:
-                if not keep_app_alive:
-                    App.get_running_app().stop()
+                # Tests that need to do async things (like keypresses) must close themselves
+                keep_app_alive = False
+                try:
+                    keep_app_alive = func()
 
-        Clock.schedule_once(func_as_callback, 2)
-        app = App()
-        app.title = test_window_name
-        app.root = BoxLayout(padding=10, spacing=10)
-        app.run()
+                finally:
+                    if not keep_app_alive:
+                        App.get_running_app().stop()
 
-    return wrapper
+
+            Clock.schedule_once(func_as_callback, 2)
+            app = app_class()
+            app.title = func.__name__
+            app.root = BoxLayout(padding=10, spacing=10)
+            app.run()
+
+        return wrapper
+
+    return real_run_in_app

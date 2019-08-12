@@ -9,13 +9,14 @@ def focusable_widgets(start):
 
 def focus_first(widg):
     """"""
-    for w in focusable_widgets(widg):   # TODO: do this in a less weird way
-        #breakpoint()
+    try:
+        w = next(focusable_widgets(widg))
         w.focus = True
         return w
 
-    # No focusable widgets
-    return None
+    except StopIteration:
+        # No focusable widgets
+        return None
 
 
 def find_first_focused(widg, start_at_next=False):
