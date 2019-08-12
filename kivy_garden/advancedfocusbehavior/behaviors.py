@@ -54,10 +54,17 @@ class FocusWidget(FocusBehavior, Widget):
         #FocusBehavior.__init__(self, **kwargs)
 
 
-    def check_for_focused_widget(self, *args):
-        if not find_first_focused(self):
-            focus_first(self)
-        #self.focus = not bool(find_first_focused(self))
+    def check_for_focused_widget(self, widg, parent):
+        if parent:
+            if not find_first_focused(self):
+                focus_first(self)
+
+        else:
+            # Need to focus another widget
+            if self.focus:
+                focus_first(self._last_parent)
+
+        self._last_parent = parent
 
 
     def focus_change(self, *args):

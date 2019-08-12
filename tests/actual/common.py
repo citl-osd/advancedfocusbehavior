@@ -14,8 +14,6 @@ focus_dest = str(Path(__file__).parents[2].resolve())
 if focus_dest not in sys.path:
     sys.path.append(focus_dest)
 
-test_window_name = 'advancedfocusbehavior_test'
-
 def run_in_app(app_class=App):
 
     @wraps(run_in_app)

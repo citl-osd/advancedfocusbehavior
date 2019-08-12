@@ -8,7 +8,7 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 import pytest
 
-from common import run_in_app, test_window_name
+from common import run_in_app
 from kivy_garden.advancedfocusbehavior import FocusApp, FocusButton, FocusCarousel, FocusTextInput, FocusWidget
 
 
@@ -22,23 +22,6 @@ class CheckActionApp(FocusApp):
     def stop(self):
         super().stop()
         assert self.did_action
-
-
-@run_in_app()
-def test_get_focus_upon_entering():
-    # If there are no focused widgets, the first focusable widget should receive focus
-    def check_focus(w):
-        assert w.focus
-
-
-    container = BoxLayout()
-    widg = FocusWidget()
-    assert not widg.focus
-    app = App.get_running_app()
-    container.add_widget(widg)
-    app.root.add_widget(container)
-    Clock.schedule_once(lambda _: check_focus(widg), 0.5)
-    #assert widg.focus
 
 
 # TODO: move to different file
