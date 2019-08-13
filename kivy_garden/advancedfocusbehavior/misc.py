@@ -6,19 +6,20 @@ from itertools import chain
 
 def focusable_widgets(start):
     """"""
-    # If this is called from an on_parent event, the widget will have a parent,
-    # but the parent won't have the widget listed as a child yet
     if not start.parent or start in start.parent.children:
         return (widg for widg in start.walk(loopback=True) if hasattr(widg, 'focus'))
 
+    # If this is called from an on_parent event, the widget will have a parent,
+    # but it won't officially be in the widget tree yet.
     return (widg for widg in chain(start.walk(loopback=True),
                 start.parent.walk(loopback=True)) if hasattr(widg, 'focus'))
 
 
 def focus_first(widg):
     """"""
+    widgets = focusable_widgets(widg)
     try:
-        w = next(focusable_widgets(widg))
+        w = next(widgets)
         w.focus = True
         return w
 
