@@ -40,7 +40,7 @@ def test_focus_buttons():
     btn = FocusButton(text='Press Enter', on_press=push_me)
     container.add_widget(btn)
     app.root.add_widget(container)
-    #assert btn.focus
+    assert btn.focus
 
     return True
 
@@ -92,5 +92,5 @@ def test_cycle_through_focusables():
         container.add_widget(btn)
 
     app.root.add_widget(container)
-    #assert first.focus
+    assert first.focus
     return True

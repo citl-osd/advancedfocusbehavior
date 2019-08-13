@@ -18,4 +18,5 @@ if focus_dest not in sys.path:
     sys.path.append(focus_dest)
 
 from kivy_garden.advancedfocusbehavior.behaviors import *
-from kivy_garden.advancedfocusbehavior.widgets import *
+from kivy_garden.advancedfocusbehavior.focusable import *
+from kivy_garden.advancedfocusbehavior.focus_aware import *

@@ -23,10 +23,10 @@ BACKGROUND = (0, 0, 0, 1)                   # Black
 HIGHLIGHT = (0.4471, 0.7765, 0.8118, 1)     # Blue
 
 
-class FocusAwareWidget(Widget):
+class FocusAwareWidget:
     """"""
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        #super().__init__(**kwargs)
         self.focus_target = None
 
 
@@ -36,14 +36,14 @@ class FocusAwareWidget(Widget):
         # No existing focused widget
         if not self.find_focus_target():
 
+            # New widget can be focused; use it!
+            if isinstance(widget, FocusWidget):
+                widget.set_focus_target(widget)
+
             # New widget is an existing tree that has a focused element; use it!
-            if isinstance(widget, FocusAwareWidget) and widget.focus_target:
+            elif isinstance(widget, FocusAwareWidget) and widget.focus_target:
                 self.set_focus_target(widget.focus_target)
 
-            # New widget can be focused; use it!
-            elif hasattr(widget, 'focus'):
-                widget.focus = True
-                widget.set_focus_target(widget)
 
         else:
             # We already have a focused widget. If the new tree has a focused
@@ -67,10 +67,9 @@ class FocusAwareWidget(Widget):
         if widget.focus:
             widget.focus = False
 
-            for widg in widget.walk_reverse(loopback=True): # could also be walk
-                if widg is not widget and hasattr(widg, 'focus'):
+            for widg in widget.walk_reverse(loopback=True): # could also be walk?
+                if widg is not widget and isinstance(widg, FocusWidget):
                     new_focus = widg
-                    new_focus.focus = True
                     new_focus.set_focus_target(new_focus)
                     break
 
@@ -99,6 +98,9 @@ class FocusAwareWidget(Widget):
     def set_focus_target(self, new_target):
         """"""
         self.focus_target = new_target
+        if new_target is self:
+            self.focus = True
+
         if self.is_parent_aware():
             self.parent.set_focus_target(new_target)
 
@@ -114,6 +116,7 @@ class FocusWidget(FocusBehavior, FocusAwareWidget):
         self.highlight_bg_color = highlight_bg_color
 
         FocusAwareWidget.__init__(self, **kwargs)
+        #self.set_focus_target(self)
         #FocusBehavior.__init__(self, **kwargs)
 
 
