@@ -17,29 +17,93 @@ from kivy.uix.behaviors.focus import FocusBehavior
 from kivy.uix.behaviors.togglebutton import ToggleButtonBehavior
 from kivy.uix.widget import Widget
 
-from kivy_garden.advancedfocusbehavior.misc import find_first_focused, focus_first
-
 
 # Color constants
 BACKGROUND = (0, 0, 0, 1)                   # Black
 HIGHLIGHT = (0.4471, 0.7765, 0.8118, 1)     # Blue
 
 
-class FocusApp(App):
+class FocusAwareWidget(Widget):
     """"""
-    @property
-    def root(self):
-        return self._root
-
-    @root.setter
-    def root(self, r):
-        self._root = r
-        if r:
-            focus_first(r)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.focus_target = None
 
 
-# TODO: move this to widgets
-class FocusWidget(FocusBehavior, Widget):
+    def add_widget(self, widget, index=0, canvas=None):
+        super().add_widget(widget, index, canvas)
+
+        # No existing focused widget
+        if not self.find_focus_target():
+
+            # New widget is an existing tree that has a focused element; use it!
+            if isinstance(widget, FocusAwareWidget) and widget.focus_target:
+                self.set_focus_target(widget.focus_target)
+
+            # New widget can be focused; use it!
+            elif hasattr(widget, 'focus'):
+                widget.focus = True
+                widget.set_focus_target(widget)
+
+        else:
+            # We already have a focused widget. If the new tree has a focused
+            # widget too, we need to defocus it.
+            if isinstance(widget, FocusAwareWidget) and widget.focus_target:
+                orig_target = widget.focus_target
+                ptr = widget
+                filter_func = lambda w: isinstance(w, FocusAwareWidget) and \
+                                                w.focus_target is orig_target
+
+                while ptr.focus_target is not ptr:
+                    ptr.focus_target = None
+                    ptr = next(filter(filter_func, ptr.children))
+
+                # ptr is now widget being defocused
+                ptr.focus_target = None
+                ptr.focus = False
+
+
+    def remove_widget(self, widget):
+        if widget.focus:
+            widget.focus = False
+
+            for widg in widget.walk_reverse(loopback=True): # could also be walk
+                if widg is not widget and hasattr(widg, 'focus'):
+                    new_focus = widg
+                    new_focus.focus = True
+                    new_focus.set_focus_target(new_focus)
+                    break
+
+            else:
+                self.set_focus_target(None)
+
+        super().remove_widget(widget)
+
+
+    def is_parent_aware(self):
+        """"""
+        return isinstance(self.parent, FocusAwareWidget)
+
+
+    def find_focus_target(self):
+        """"""
+        if self.focus_target:
+            return self.focus_target
+
+        if self.is_parent_aware():
+            return self.parent.find_focus_target()
+
+        return None
+
+
+    def set_focus_target(self, new_target):
+        """"""
+        self.focus_target = new_target
+        if self.is_parent_aware():
+            self.parent.set_focus_target(new_target)
+
+
+class FocusWidget(FocusBehavior, FocusAwareWidget):
     """"""
 
     def __init__(self, highlight_color=HIGHLIGHT, highlight_bg_color=BACKGROUND,
@@ -49,22 +113,8 @@ class FocusWidget(FocusBehavior, Widget):
         self.highlight_color = highlight_color
         self.highlight_bg_color = highlight_bg_color
 
-        Widget.__init__(self, **kwargs)
-        self.bind(parent=self.check_for_focused_widget)
+        FocusAwareWidget.__init__(self, **kwargs)
         #FocusBehavior.__init__(self, **kwargs)
-
-
-    def check_for_focused_widget(self, widg, parent):
-        if parent:
-            if not find_first_focused(self):
-                focus_first(self)
-
-        else:
-            # Need to focus another widget
-            if self.focus:
-                focus_first(self._last_parent)
-
-        self._last_parent = parent
 
 
     def focus_change(self, *args):

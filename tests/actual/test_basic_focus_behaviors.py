@@ -9,10 +9,11 @@ from kivy.uix.textinput import TextInput
 import pytest
 
 from common import run_in_app
-from kivy_garden.advancedfocusbehavior import FocusApp, FocusButton, FocusCarousel, FocusTextInput, FocusWidget
+from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
+                                                FocusCarousel, FocusTextInput, FocusWidget
 
 
-class CheckActionApp(FocusApp):
+class CheckActionApp(App):
     """"""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -35,7 +36,7 @@ def test_focus_buttons():
         app.stop()
 
 
-    container = BoxLayout()
+    container = FocusBoxLayout()
     btn = FocusButton(text='Press Enter', on_press=push_me)
     container.add_widget(btn)
     app.root.add_widget(container)
@@ -76,7 +77,7 @@ def test_cycle_through_focusables():
         app.stop()
 
 
-    container = BoxLayout(orientation='vertical', padding=20, spacing=20)
+    container = FocusBoxLayout(orientation='vertical', padding=20, spacing=20)
     container.add_widget(Label(text=('Press Tab once to cycle to the next widget, '
                                      'then press Shift+Tab once to cycle back.')))
     first = FocusButton(text='button 1')

@@ -4,7 +4,6 @@ kivy.require('1.11.1')
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
-#from pygetwindow import getWindowsWithTitle
 
 from functools import wraps
 from pathlib import Path

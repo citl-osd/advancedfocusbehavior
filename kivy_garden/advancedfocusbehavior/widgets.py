@@ -3,6 +3,7 @@ kivy.require('1.11.1')
 
 from kivy.uix.accordion import Accordion
 # TODO: action bar
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.carousel import Carousel
 from kivy.uix.checkbox import CheckBox
@@ -23,7 +24,7 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.treeview import TreeView, TreeViewNode
 from kivy.uix.videoplayer import VideoPlayer
 
-from kivy_garden.advancedfocusbehavior.behaviors import FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior
+from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget, FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior
 
 
 class FocusAccordion(FocusWidget, Accordion):
@@ -31,6 +32,13 @@ class FocusAccordion(FocusWidget, Accordion):
 
 
 # FocusActionBar and friends
+
+
+class FocusBoxLayout(FocusAwareWidget, BoxLayout):
+    """"""
+    def __init__(self, **kwargs):
+        BoxLayout.__init__(self, **kwargs)
+        FocusAwareWidget.__init__(self, **kwargs)
 
 
 class FocusButton(FocusButtonBehavior, Button, FocusWidget):

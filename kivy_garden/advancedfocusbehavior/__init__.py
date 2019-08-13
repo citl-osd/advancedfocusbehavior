@@ -19,4 +19,3 @@ if focus_dest not in sys.path:
 
 from kivy_garden.advancedfocusbehavior.behaviors import *
 from kivy_garden.advancedfocusbehavior.widgets import *
-from kivy_garden.advancedfocusbehavior.misc import *
