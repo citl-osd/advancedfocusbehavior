@@ -81,9 +81,40 @@ def test_focus_override():
     assert container.focus_target is c
 
 
-def test_disable_focus():
-    pass
+def test_disable_some_focus():
+    outer = FocusBoxLayout()
+    inner = FocusBoxLayout()
+    a = FocusButton()
+    b = FocusButton()
+
+    outer.add_widget(a)
+    outer.add_widget(inner)
+    inner.add_widget(b)
+
+    b.focus = True
+
+    inner.set_focus_enabled(False)
+
+    assert a.focus
+
+
+def test_disable_all_focus():
+    container = FocusBoxLayout()
+    a, b, c = [FocusButton() for _ in range(3)]
+
+    for btn in (a, b, c):
+        container.add_widget(btn)
+
+    container.set_focus_enabled(False)
+    assert container.focus_target is None
 
 
 def test_reenable_focus():
-    pass
+    container = FocusBoxLayout()
+    btn = FocusButton()
+    container.add_widget(btn)
+    container.set_focus_enabled(False)
+    assert not btn.focus
+
+    container.set_focus_enabled(True)
+    assert btn.focus
