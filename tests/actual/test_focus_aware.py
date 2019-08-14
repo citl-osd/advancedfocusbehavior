@@ -44,6 +44,7 @@ def test_defocus_all():
     container.add_widget(widg)
 
     container.remove_widget(widg)
+    assert not widg.focus
     assert container.focus_target is None
 
 
@@ -63,24 +64,18 @@ def test_add_tree_focus():
     assert outer.focus_target is c
 
 
-#def test_add_tree_no_focus():
-#    pass
-
-
-def test_add_tree_focus_conflict():
+def test_focus_override():
+    container = FocusBoxLayout()
     a, b, c = [FocusButton() for _ in range(3)]
-    outer = FocusBoxLayout()
-    inner = FocusBoxLayout()
-
-    outer.add_widget(a)
-    outer.add_widget(b)
-    inner.add_widget(c)
+    for btn in (a, b, c):
+        container.add_widget(btn)
 
     assert a.focus
+    assert container.focus_target is a
+    print('a is focused')
+
+    c.focus = True
+    print('c is focused')
+
     assert c.focus
-
-    outer.add_widget(inner)
-
-    assert a.focus
-    assert not c.focus
-    assert inner.focus_target is None
+    assert container.focus_target is c

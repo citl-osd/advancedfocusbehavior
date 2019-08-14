@@ -34,11 +34,13 @@ class FocusAwareWidget:
         super().add_widget(widget, index, canvas)
 
         # No existing focused widget
-        if not self.find_focus_target():
+        current_focus = self.find_focus_target()
+        if not current_focus:
 
             # New widget can be focused; use it!
             if isinstance(widget, FocusWidget):
-                widget.set_focus_target(widget)
+                widget.focus = True
+                #widget.set_focus_target(widget)
 
             # New widget is an existing tree that has a focused element; use it!
             elif isinstance(widget, FocusAwareWidget) and widget.focus_target:
@@ -48,6 +50,7 @@ class FocusAwareWidget:
         else:
             # We already have a focused widget. If the new tree has a focused
             # widget too, we need to defocus it.
+            # TODO: this may never happen anymore; remove it?
             if isinstance(widget, FocusAwareWidget) and widget.focus_target:
                 orig_target = widget.focus_target
                 ptr = widget
@@ -67,14 +70,18 @@ class FocusAwareWidget:
         if widget.focus:
             widget.focus = False
 
-            for widg in widget.walk_reverse(loopback=True): # could also be walk?
-                if widg is not widget and isinstance(widg, FocusWidget):
-                    new_focus = widg
-                    new_focus.set_focus_target(new_focus)
-                    break
+            focus_next = widget.get_focus_next()    # could also be prev
+            if focus_next:
+                focus_next.focus = True
 
-            else:
-                self.set_focus_target(None)
+            #for widg in widget.walk_reverse(loopback=True): # could also be walk?
+            #    if widg is not widget and isinstance(widg, FocusWidget):
+            #        new_focus = widg
+            #        new_focus.set_focus_target(new_focus)
+            #        break
+
+            #else:
+            #    self.set_focus_target(None)
 
         super().remove_widget(widget)
 
@@ -97,17 +104,17 @@ class FocusAwareWidget:
 
     def set_focus_target(self, new_target):
         """"""
-        self.focus_target = new_target
-        if new_target is self:
-            self.focus = True
+        print(f'{self}: original focus target: {self.focus_target} {self.focus_target.focus if self.focus_target else ""}')
+        if not (new_target and self.focus_target):
+            print(f'{self}: setting focus target to {new_target}')
+            self.focus_target = new_target
 
-        if self.is_parent_aware():
-            self.parent.set_focus_target(new_target)
+            if self.is_parent_aware():
+                self.parent.set_focus_target(new_target)
 
 
 class FocusWidget(FocusBehavior, FocusAwareWidget):
     """"""
-
     def __init__(self, highlight_color=HIGHLIGHT, highlight_bg_color=BACKGROUND,
                  draw_focus=True, **kwargs):
 
@@ -116,13 +123,21 @@ class FocusWidget(FocusBehavior, FocusAwareWidget):
         self.highlight_bg_color = highlight_bg_color
 
         FocusAwareWidget.__init__(self, **kwargs)
-        #self.set_focus_target(self)
+        self.bind(focus=self.focus_change)
         #FocusBehavior.__init__(self, **kwargs)
 
 
-    def focus_change(self, *args):
+    def focus_change(self, widg, focus):
         # TODO: assure that this widget is visible when it gains focus
-        print(f'focus change: {self.focus}, disabled: {self.disabled}, focusable: {self.is_focusable}')
+        if focus:
+            # Make sure that other focused widget, if it exists, gets defocused
+            # first to maintain consistency in the FocusAware tree
+            for w in widg.walk_reverse(loopback=True):  # direction is arbitrary
+                if w is not widg and getattr(w, 'focus', False):
+                    w.focus = False
+                    break
+
+        self.set_focus_target(self if focus else None)
 
 
 class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
