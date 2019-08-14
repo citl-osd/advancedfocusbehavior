@@ -36,10 +36,12 @@ def run_in_app(app_class=App, timeout=15):
 
 
             Clock.schedule_once(func_as_callback, 2)
-            Clock.schedule_once(lambda _: pytest.fail('No user interaction given.'), timeout)
+            if timeout is not None:     # allow 0
+                Clock.schedule_once(lambda _: pytest.fail('No user interaction given.'), timeout)
+
             app = app_class()
             app.title = func.__name__
-            app.root = BoxLayout(padding=10, spacing=10)
+            app.root = BoxLayout(orientation='vertical', padding=20, spacing=20)
             app.run()
 
         return wrapper

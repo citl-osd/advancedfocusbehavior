@@ -79,3 +79,11 @@ def test_focus_override():
 
     assert c.focus
     assert container.focus_target is c
+
+
+def test_disable_focus():
+    pass
+
+
+def test_reenable_focus():
+    pass

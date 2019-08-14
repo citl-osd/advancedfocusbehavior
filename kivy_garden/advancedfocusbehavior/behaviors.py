@@ -17,6 +17,8 @@ from kivy.uix.behaviors.focus import FocusBehavior
 from kivy.uix.behaviors.togglebutton import ToggleButtonBehavior
 from kivy.uix.widget import Widget
 
+from collections import deque
+
 
 # Color constants
 BACKGROUND = (0, 0, 0, 1)                   # Black
@@ -104,13 +106,24 @@ class FocusAwareWidget:
 
     def set_focus_target(self, new_target):
         """"""
-        print(f'{self}: original focus target: {self.focus_target} {self.focus_target.focus if self.focus_target else ""}')
         if not (new_target and self.focus_target):
-            print(f'{self}: setting focus target to {new_target}')
             self.focus_target = new_target
 
             if self.is_parent_aware():
                 self.parent.set_focus_target(new_target)
+
+
+    def set_focus_enabled(self, state):
+        """"""
+        dq = deque()
+        dq.append(self)
+
+        while dq:
+            next_widget = dq.popleft()
+            if isinstance(next_widget, FocusWidget):
+                next_widget.is_focusable = state
+
+            dq.extend((c for c in next_widget.children if isinstance(c, FocusAwareWidget)))
 
 
 class FocusWidget(FocusBehavior, FocusAwareWidget):
@@ -124,7 +137,9 @@ class FocusWidget(FocusBehavior, FocusAwareWidget):
 
         FocusAwareWidget.__init__(self, **kwargs)
         self.bind(focus=self.focus_change)
-        #FocusBehavior.__init__(self, **kwargs)
+
+        if not hasattr(self, '_old_focus_next'):
+            FocusBehavior.__init__(self, **kwargs)
 
 
     def focus_change(self, widg, focus):
@@ -132,6 +147,8 @@ class FocusWidget(FocusBehavior, FocusAwareWidget):
         if focus:
             # Make sure that other focused widget, if it exists, gets defocused
             # first to maintain consistency in the FocusAware tree
+
+            # TODO: speed this up, if possible
             for w in widg.walk_reverse(loopback=True):  # direction is arbitrary
                 if w is not widg and getattr(w, 'focus', False):
                     w.focus = False
@@ -143,7 +160,9 @@ class FocusWidget(FocusBehavior, FocusAwareWidget):
 class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
     """"""
     def __init__(self, **kwargs):
-        FocusBehavior.__init__(self, **kwargs)
+        if not hasattr(self, '_old_focus_next'):
+            FocusBehavior.__init__(self, **kwargs)
+
         ButtonBehavior.__init__(self, **kwargs)
 
 

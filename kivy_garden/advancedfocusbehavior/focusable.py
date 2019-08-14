@@ -24,7 +24,8 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.treeview import TreeView, TreeViewNode
 from kivy.uix.videoplayer import VideoPlayer
 
-from kivy_garden.advancedfocusbehavior.behaviors import FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior
+from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget, \
+            FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior
 
 
 class FocusAccordion(FocusWidget, Accordion):
@@ -44,15 +45,40 @@ class FocusButton(FocusButtonBehavior, Button, FocusWidget):
 
 class FocusCarousel(FocusWidget, Carousel):
     """"""
-    def key_to_load_type(self, key):
-        """"""
+    def __init__(self, **kwargs):
+        FocusWidget.__init__(self, **kwargs)
+        Carousel.__init__(self, **kwargs)
+
+        self.bind(current_slide=self.on_change_slide)
+
+
+    def on_change_slide(self, carousel, slide):
+        if isinstance(slide, FocusAwareWidget):
+            slide.set_focus_enabled(True)
+
+        for s in self.slides:
+            if s is not slide and isinstance(s, FocusAwareWidget):
+                s.set_focus_enabled(False)
+
+    # (key, direction)
+    keymap = {
+        ('right', 'right'): 'next',
+        ('right', 'left'): 'prev',
+        ('left', 'right'): 'prev',
+        ('left', 'left'): 'next',
+        ('up', 'top'): 'next',
+        ('up', 'bottom'): 'prev',
+        ('down', 'top'): 'prev',
+        ('down', 'bottom'): 'next'
+    }
 
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        #print(keycode)
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
             return True
 
-        load_type = self.key_to_load_type(keycode[1])
+        load_type = FocusCarousel.keymap.get((keycode[1], self.direction))
 
         if load_type:
             self.load_next(mode=load_type)
