@@ -15,6 +15,7 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.behaviors.button import ButtonBehavior
 from kivy.uix.behaviors.focus import FocusBehavior
 from kivy.uix.behaviors.togglebutton import ToggleButtonBehavior
+from kivy.uix.carousel import Carousel
 from kivy.uix.widget import Widget
 
 from collections import deque
@@ -117,13 +118,39 @@ class FocusAwareWidget:
         """"""
         dq = deque()
         dq.append(self)
+        last_focusable = None
 
         while dq:
             next_widget = dq.popleft()
             if isinstance(next_widget, FocusWidget):
                 next_widget.is_focusable = state
+                last_focusable = next_widget
 
-            dq.extend((c for c in next_widget.children if isinstance(c, FocusAwareWidget)))
+            # A few widgets have their "children" in different places
+            # TODO: check if there are other special cases
+            if isinstance(next_widget, Carousel):
+                children = next_widget.slides
+
+            else:
+                children = next_widget.children
+
+            dq.extend((c for c in children if isinstance(c, FocusAwareWidget)))
+
+        if last_focusable and not self.find_focus_target():
+            focus_next = last_focusable.get_focus_previous()
+            if focus_next:
+                focus_next.focus = True
+
+            elif state:     # get_focus_previous ignores self, which we want to focus
+                last_focusable.focus = True
+
+
+    def disable_focus(self):
+        self.set_focus_enabled(False)
+
+
+    def enable_focus(self):
+        self.set_focus_enabled(True)
 
 
 class FocusWidget(FocusBehavior, FocusAwareWidget):

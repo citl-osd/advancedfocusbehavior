@@ -92,6 +92,7 @@ def test_disable_some_focus():
     inner.add_widget(b)
 
     b.focus = True
+    assert outer.focus_target is b
 
     inner.set_focus_enabled(False)
 
