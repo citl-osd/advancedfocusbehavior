@@ -10,7 +10,7 @@ import pytest
 
 from common import run_in_app
 from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
-            FocusCarousel, FocusTextInput, FocusWidget
+            FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox
 
 
 class CheckActionApp(App):
@@ -96,7 +96,7 @@ def test_cycle_through_focusables():
     return True
 
 
-@run_in_app(app_class=CheckActionApp, timeout=None)
+@run_in_app(app_class=CheckActionApp, timeout=20)
 def test_carousel():
     app = App.get_running_app()
     app.step_1 = False
@@ -124,4 +124,25 @@ def test_carousel():
     app.root.add_widget(car)
     app.root.add_widget(btn_2)
 
+    return True
+
+
+@run_in_app()
+def test_checkbox():
+    app = App.get_running_app()
+    container = FocusBoxLayout(orientation='vertical', padding=10, spacing=10)
+    lb = Label(text='Activate the checkbox, then press the button below it.')
+    cb = FocusCheckBox()
+    btn = FocusButton(text='Test checkbox')
+
+    def press_me(*args):
+        assert cb.active
+        app.stop()
+
+    btn.bind(on_press=press_me)
+
+    for widg in (lb, cb, btn):
+        container.add_widget(widg)
+
+    app.root.add_widget(container)
     return True

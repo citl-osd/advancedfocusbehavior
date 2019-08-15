@@ -89,6 +89,10 @@ class FocusCarousel(FocusWidget, Carousel):
 
 class FocusCheckBox(FocusToggleButtonBehavior, FocusWidget, CheckBox):
     """"""
+    def __init__(self, **kwargs):
+        FocusToggleButtonBehavior.__init__(self, **kwargs)
+        FocusWidget.__init__(self, **kwargs)
+        CheckBox.__init__(self, **kwargs)
 
 
 #class FocusCodeInput(FocusWidget, CodeInput)
