@@ -193,8 +193,12 @@ class FocusTextInput(FocusWidget, TextInput):   # TextInput already uses FocusBe
         FocusWidget.__init__(self, draw_focus=False, **kwargs)
 
 
-class FocusToggleButton(FocusWidget, FocusToggleButtonBehavior, ToggleButton):
+class FocusToggleButton(FocusToggleButtonBehavior, FocusWidget, ToggleButton):
     """"""
+    def __init__(self, **kwargs):
+        FocusToggleButtonBehavior.__init__(self, **kwargs)
+        FocusWidget.__init__(self, **kwargs)
+        ToggleButton.__init__(self, **kwargs)
 
 
 class FocusTreeView(FocusWidget, TreeView):

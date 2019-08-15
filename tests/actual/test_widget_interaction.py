@@ -11,7 +11,7 @@ import pytest
 from common import run_in_app
 from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
             FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox, \
-            FocusSlider
+            FocusSlider, FocusToggleButton
 
 
 class CheckActionApp(App):
@@ -143,6 +143,32 @@ def test_checkbox():
     btn.bind(on_press=press_me)
 
     for widg in (lb, cb, btn):
+        container.add_widget(widg)
+
+    app.root.add_widget(container)
+    return True
+
+
+@run_in_app()
+def test_toggle_button():
+    app = App.get_running_app()
+    container = FocusBoxLayout(orientation='vertical', padding=10, spacing=10)
+    lb = Label(text='Activate the toggle button, then press the button below it.')
+    tb = FocusToggleButton(text='off')
+    btn = FocusButton(text='Test toggle button')
+
+    def update_toggle_label(tbtn, val):
+        tbtn.text = 'on' if val == 'down' else 'off'
+
+
+    def press_me(*args):
+        assert tb.state == 'down'
+        app.stop()
+
+    tb.bind(state=update_toggle_label)
+    btn.bind(on_press=press_me)
+
+    for widg in (lb, tb, btn):
         container.add_widget(widg)
 
     app.root.add_widget(container)
