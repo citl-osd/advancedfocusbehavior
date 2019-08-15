@@ -27,6 +27,8 @@ from kivy.uix.videoplayer import VideoPlayer
 from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget, \
             FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior
 
+from math import sqrt
+
 
 class FocusAccordion(FocusWidget, Accordion):
     """"""
@@ -95,6 +97,7 @@ class FocusCheckBox(FocusToggleButtonBehavior, FocusWidget, CheckBox):
         CheckBox.__init__(self, **kwargs)
 
 
+# FocusCodeInput might not be feasible b/c it needs tabs
 #class FocusCodeInput(FocusWidget, CodeInput)
 
 
@@ -133,7 +136,45 @@ class FocusScreen(FocusWidget, Screen):
 
 
 class FocusSlider(FocusWidget, Slider):
-    """"""
+    """
+
+    controls:
+        +/- to increase/decrease value
+        hold shift to decrese sensitivity
+        hold alt to increase sensitivity
+    """
+    def __init__(self, fine_control=1.0, **kwargs):
+        FocusWidget.__init__(self, **kwargs)
+        Slider.__init__(self, **kwargs)
+        self.fine_control = fine_control
+
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        if super().keyboard_on_key_down(window, keycode, text, modifiers):
+            return True
+
+        key = keycode[1]
+        if key not in ('=', '-'):
+            return False
+
+        slider_range = self.max - self.min
+
+        if 'alt' in modifiers:  # Fine control
+            step = self.fine_control
+
+        elif 'shift' in modifiers:  # Coarse control
+            step = slider_range / 5
+
+        else:   # Just right control
+            step = sqrt(slider_range // 5)
+
+        if key == '=':
+            self.value = min(self.value + step, self.max)
+
+        else:
+            self.value = max(self.value - step, self.min)
+
+        return True
 
 
 class FocusSpinner(FocusWidget, Spinner):

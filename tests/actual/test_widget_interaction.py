@@ -10,7 +10,8 @@ import pytest
 
 from common import run_in_app
 from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
-            FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox
+            FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox, \
+            FocusSlider
 
 
 class CheckActionApp(App):
@@ -142,6 +143,34 @@ def test_checkbox():
     btn.bind(on_press=press_me)
 
     for widg in (lb, cb, btn):
+        container.add_widget(widg)
+
+    app.root.add_widget(container)
+    return True
+
+
+@run_in_app()
+def test_slider():
+    app = App.get_running_app()
+    container = FocusBoxLayout(orientation='vertical', padding=10, spacing=10)
+    instruction_label = Label(text='Set the slider to 48')
+    pos_label = Label()
+    slider = FocusSlider()
+    btn = FocusButton(text='Submit')
+
+    def update_pos_label(slider, value):
+        pos_label.text = str(int(value))
+
+
+    def press_me(*args):
+        assert int(slider.value) == 48
+        app.stop()
+
+
+    slider.bind(value=update_pos_label)
+    btn.bind(on_press=press_me)
+
+    for widg in (instruction_label, pos_label, slider, btn):
         container.add_widget(widg)
 
     app.root.add_widget(container)
