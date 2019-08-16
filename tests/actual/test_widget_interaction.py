@@ -11,7 +11,7 @@ import pytest
 from common import run_in_app
 from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
             FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox, \
-            FocusSlider, FocusToggleButton
+            FocusSlider, FocusToggleButton, FocusScreen, FocusScreenManager
 
 
 class CheckActionApp(App):
@@ -177,9 +177,10 @@ def test_toggle_button():
 
 @run_in_app()
 def test_slider():
+    value = 48
     app = App.get_running_app()
     container = FocusBoxLayout(orientation='vertical', padding=10, spacing=10)
-    instruction_label = Label(text='Set the slider to 48')
+    instruction_label = Label(text=f'Set the slider to {value}')
     pos_label = Label()
     slider = FocusSlider()
     btn = FocusButton(text='Submit')
@@ -189,7 +190,7 @@ def test_slider():
 
 
     def press_me(*args):
-        assert int(slider.value) == 48
+        assert int(slider.value) == value
         app.stop()
 
 
@@ -200,4 +201,55 @@ def test_slider():
         container.add_widget(widg)
 
     app.root.add_widget(container)
+    return True
+
+
+@run_in_app(app_class=CheckActionApp)
+def test_screen_manager():
+    app = App.get_running_app()
+    app.step_1 = False
+
+    instructions = Label(text=('Press the button on the next screen, then press'
+                                ' the button at the bottom of the app.'))
+
+    s1 = FocusScreen(name='screen_1')
+    container_1 = FocusBoxLayout(orientation='vertical', padding=30, spacing=30)
+    to_screen_2 = FocusButton(text='To screen 2 ->')
+    container_1.add_widget(to_screen_2)
+    s1.add_widget(container_1)
+
+    s2 = FocusScreen(name='screen_2')
+    container_2 = FocusBoxLayout(orientation='vertical', padding=30, spacing=30)
+    step_1_btn = FocusButton(text='Press me first!')
+    container_2.add_widget(step_1_btn)
+    s2.add_widget(container_2)
+
+    submit_btn = FocusButton(text='Submit')
+    manager = FocusScreenManager()
+
+    def press_step_1(*args):
+        app.step_1 = True
+
+
+    def press_to_screen_2(*args):
+        manager.current = 'screen_2'
+
+
+    def submit(*args):
+        if app.step_1:
+            app.did_action = True
+            app.stop()
+
+
+    to_screen_2.bind(on_press=press_to_screen_2)
+    step_1_btn.bind(on_press=press_step_1)
+    submit_btn.bind(on_press=submit)
+
+    manager.add_widget(s1)
+    manager.add_widget(s2)
+
+    app.root.add_widget(instructions)
+    app.root.add_widget(manager)
+    app.root.add_widget(submit_btn)
+
     return True

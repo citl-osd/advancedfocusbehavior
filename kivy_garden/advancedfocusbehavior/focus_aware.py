@@ -9,8 +9,9 @@ from kivy.uix.pagelayout import PageLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.scatterlayout import ScatterLayout
 from kivy.uix.stacklayout import StackLayout
+from kivy.uix.screenmanager import ScreenManager, Screen
 
-from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget
+from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget, FocusWidget
 
 
 class FocusAnchorLayout(FocusAwareWidget, AnchorLayout):
@@ -67,3 +68,41 @@ class FocusStackLayout(FocusAwareWidget, StackLayout):
     def __init__(self, **kwargs):
         StackLayout.__init__(self, **kwargs)
         FocusAwareWidget.__init__(self, **kwargs)
+
+
+class FocusScreenManager(FocusAwareWidget, ScreenManager):
+    """"""
+    def __init__(self, **kwargs):
+        ScreenManager.__init__(self, **kwargs)
+        FocusAwareWidget.__init__(self, **kwargs)
+
+
+    def add_widget(self, screen):
+        ScreenManager.add_widget(self, screen)
+        if len(self.screens) == 1:
+            self.current_screen.focus_first()
+
+
+    def on_change_screen(self, manager, new_screen):
+        for s in self.screens:
+            if s is not new_screen and isinstance(s, FocusAwareWidget):
+                s.disable_focus()
+
+        if isinstance(new_screen, FocusAwareWidget):
+            new_screen.enable_focus()
+
+
+class FocusScreen(FocusAwareWidget, Screen):
+    """"""
+    def __init__(self, **kwargs):
+        Screen.__init__(self, **kwargs)
+        FocusAwareWidget.__init__(self, **kwargs)
+
+        self.bind(on_enter=self.focus_first)
+
+
+    def focus_first(self, *args):
+        for widg in self.walk():
+            if isinstance(widg, FocusWidget):
+                widg.focus = True
+                break

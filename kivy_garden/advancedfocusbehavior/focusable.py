@@ -56,11 +56,11 @@ class FocusCarousel(FocusWidget, Carousel):
 
     def on_change_slide(self, carousel, slide):
         if isinstance(slide, FocusAwareWidget):
-            slide.set_focus_enabled(True)
+            slide.enable_focus()
 
         for s in self.slides:
             if s is not slide and isinstance(s, FocusAwareWidget):
-                s.set_focus_enabled(False)
+                s.disable_focus()
 
     # (key, direction)
     keymap = {

@@ -16,6 +16,7 @@ from kivy.uix.behaviors.button import ButtonBehavior
 from kivy.uix.behaviors.focus import FocusBehavior
 from kivy.uix.behaviors.togglebutton import ToggleButtonBehavior
 from kivy.uix.carousel import Carousel
+from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.widget import Widget
 
 from collections import deque
@@ -33,8 +34,8 @@ class FocusAwareWidget:
         self.focus_target = None
 
 
-    def add_widget(self, widget, index=0, canvas=None):
-        super().add_widget(widget, index, canvas)
+    def add_widget(self, widget, **kwargs):
+        super().add_widget(widget, **kwargs)
 
         # No existing focused widget
         current_focus = self.find_focus_target()
@@ -130,6 +131,9 @@ class FocusAwareWidget:
             # TODO: check if there are other special cases
             if isinstance(next_widget, Carousel):
                 children = next_widget.slides
+
+            elif isinstance(next_widget, ScreenManager):
+                children = next_widget.screens
 
             else:
                 children = next_widget.children
