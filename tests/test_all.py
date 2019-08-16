@@ -1,5 +1,6 @@
 import pytest
 
+from importlib.util import find_spec
 import subprocess
 import sys
 
@@ -13,10 +14,18 @@ if result.returncode != 0:
 
 tests = result.stdout.split('\n')[:-3]
 
+use_coverage = bool(find_spec('pytest-cov'))
+
 
 @pytest.mark.parametrize('test', tests)
 def test_all(test):
-    test_results = subprocess.run(['pytest', test])
+    if use_coverage:
+        cmd = ['pytest', '--cov-append', '--cov=kivy_garden/advancedfocusbehavior', test]
+
+    else:
+        cmd = ['pytest', test]
+
+    test_results = subprocess.run(cmd)
     assert test_results.returncode == 0
 
 
