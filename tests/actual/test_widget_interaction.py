@@ -8,10 +8,13 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 import pytest
 
+from math import isclose
+
 from common import run_in_app
 from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
             FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox, \
-            FocusSlider, FocusToggleButton, FocusScreen, FocusScreenManager
+            FocusSlider, FocusToggleButton, FocusScreen, FocusScreenManager, \
+            FocusVideoPlayer
 
 
 class CheckActionApp(App):
@@ -128,7 +131,7 @@ def test_carousel():
     return True
 
 
-@run_in_app()
+@run_in_app(app_class=CheckActionApp)
 def test_checkbox():
     app = App.get_running_app()
     container = FocusBoxLayout(orientation='vertical', padding=10, spacing=10)
@@ -138,6 +141,7 @@ def test_checkbox():
 
     def press_me(*args):
         assert cb.active
+        app.did_action = True
         app.stop()
 
     btn.bind(on_press=press_me)
@@ -149,7 +153,7 @@ def test_checkbox():
     return True
 
 
-@run_in_app()
+@run_in_app(app_class=CheckActionApp)
 def test_toggle_button():
     app = App.get_running_app()
     container = FocusBoxLayout(orientation='vertical', padding=10, spacing=10)
@@ -163,6 +167,7 @@ def test_toggle_button():
 
     def press_me(*args):
         assert tb.state == 'down'
+        app.did_action = True
         app.stop()
 
     tb.bind(state=update_toggle_label)
@@ -175,7 +180,7 @@ def test_toggle_button():
     return True
 
 
-@run_in_app()
+@run_in_app(app_class=CheckActionApp)
 def test_slider():
     value = 48
     app = App.get_running_app()
@@ -191,6 +196,7 @@ def test_slider():
 
     def press_me(*args):
         assert int(slider.value) == value
+        app.did_action = True
         app.stop()
 
 
@@ -251,5 +257,31 @@ def test_screen_manager():
     app.root.add_widget(instructions)
     app.root.add_widget(manager)
     app.root.add_widget(submit_btn)
+
+    return True
+
+
+@run_in_app(app_class=CheckActionApp, timeout=60)
+def test_video_player():
+    target = 5  # seconds
+    app = App.get_running_app()
+    container = FocusBoxLayout(orientation='vertical', padding=30, spacing=30)
+    instructions = Label(text=(f'1. Navigate to {target} seconds in the video\n'
+                                '2. Mute the audio'), size_hint_y=0.1)
+    player = FocusVideoPlayer(source='tests/actual/test_data/mandelbrot.mp4')
+    submit = FocusButton(text='Submit', size_hint_y=0.1)
+
+    def on_submit(*args):
+        assert isclose(target, player.position, abs_tol=1)
+        assert player.volume == 0
+        app.did_action = True
+        app.stop()
+
+    submit.bind(on_press=on_submit)
+    container.add_widget(instructions)
+    container.add_widget(player)
+    container.add_widget(submit)
+
+    app.root.add_widget(container)
 
     return True

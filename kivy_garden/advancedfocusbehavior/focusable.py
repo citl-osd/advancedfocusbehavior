@@ -25,9 +25,8 @@ from kivy.uix.treeview import TreeView, TreeViewNode
 from kivy.uix.videoplayer import VideoPlayer
 
 from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget, \
-            FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior
-
-from math import sqrt
+            FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior, incr, \
+            decr, mods_to_step_size
 
 
 class FocusAccordion(FocusWidget, Accordion):
@@ -125,9 +124,6 @@ class FocusModalView(FocusWidget, ModalView):
     """"""
 
 
-# pagelayout
-
-
 class FocusScreen(FocusWidget, Screen):
     """"""
 
@@ -158,21 +154,13 @@ class FocusSlider(FocusWidget, Slider):
             return False
 
         slider_range = self.max - self.min
-
-        if 'alt' in modifiers:  # Fine control
-            step = self.fine_control
-
-        elif 'shift' in modifiers:  # Coarse control
-            step = slider_range / 5
-
-        else:   # Just right control
-            step = sqrt(slider_range // 5)
+        step = mods_to_step_size(modifiers)
 
         if key == '=':
-            self.value = min(self.value + step, self.max)
+            self.value = incr(self.value, self.min, self.max, step)
 
         else:
-            self.value = max(self.value - step, self.min)
+            self.value = decr(self.value, self.min, self.max, step)
 
         return True
 
@@ -210,3 +198,43 @@ class FocusTreeView(FocusWidget, TreeView):
 
 class FocusVideoPlayer(FocusWidget, VideoPlayer):
     """"""
+    def __init__(self, volume_levels=5, **kwargs):
+        FocusWidget.__init__(self, **kwargs)
+        VideoPlayer.__init__(self, **kwargs)
+        self.volume_interval = 1 / volume_levels
+
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        if super().keyboard_on_key_down(window, keycode, text, modifiers):
+            return True
+
+        key = keycode[1]
+
+        # Pause/Play
+        if key == 'spacebar':
+            self.state = 'pause' if self.state == 'play' else 'play'
+
+        # Volume
+        elif key == '=':
+            self.volume = min(self.volume + self.volume_interval, 1)
+
+        elif key == '-':
+            self.volume = max(self.volume - self.volume_interval, 0)
+
+        # Seek
+        elif key in ('right', 'left'):
+            step = mods_to_step_size(modifiers)
+
+            if key == 'right':
+                self.position = incr(self.position, max_val=self.duration,
+                                    step=step, min_step_size=3)
+
+            else:
+                self.position = decr(self.position, max_val=self.duration,
+                                    step=step, min_step_size=3)
+
+        # A key we don't care about
+        else:
+            return False
+
+        return True
