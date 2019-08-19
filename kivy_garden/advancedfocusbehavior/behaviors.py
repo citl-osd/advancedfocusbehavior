@@ -207,37 +207,20 @@ class FocusToggleButtonBehavior(FocusBehavior, ToggleButtonBehavior):
 def mods_to_step_size(mods):
     """"""
     if 'alt' in mods:
-        return 'small'
+        return 'fine'
 
     elif 'shift' in mods:
-        return 'large'
+        return 'coarse'
 
     # Just right control
     return 'medium'
 
 
-def _step_size(step, step_range, min_step_size, largest_step_interval):
+def incr(value, max_val, step):
     """"""
-    small_step_size = min(min_step_size, step_range / 100)
-    if step == 'small':
-        return small_step_size
-
-    large_step_size = step_range / largest_step_interval
-    if step == 'large':
-        return large_step_size
-
-    return sqrt(small_step_size * large_step_size)
+    return min(value + step, max_val)
 
 
-def incr(value, min_val=0, max_val=100, step='medium', min_step_size=1, largest_step_interval=5):
+def decr(value, min_val, step):
     """"""
-    step_range = max_val - min_val
-    step_size = _step_size(step, step_range, min_step_size, largest_step_interval)
-    return min(value + step_size, max_val)
-
-
-def decr(value, min_val=0, max_val=100, step='medium', min_step_size=1, largest_step_interval=5):
-    """"""
-    step_range = max_val - min_val
-    step_size = _step_size(step, step_range, min_step_size, largest_step_interval)
-    return max(value - step_size, min_val)
+    return max(value - step, min_val)

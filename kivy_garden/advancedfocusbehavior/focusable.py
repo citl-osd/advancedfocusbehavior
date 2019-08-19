@@ -25,6 +25,8 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.treeview import TreeView, TreeViewNode
 from kivy.uix.videoplayer import VideoPlayer
 
+from math import sqrt
+
 from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget, \
             FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior, incr, \
             decr, mods_to_step_size
@@ -138,10 +140,16 @@ class FocusSlider(FocusWidget, Slider):
         hold shift to decrese sensitivity
         hold alt to increase sensitivity
     """
-    def __init__(self, fine_control=1.0, **kwargs):
+    def __init__(self, fine_control=None, medium_control=None, coarse_control=None, **kwargs):
         FocusWidget.__init__(self, **kwargs)
         Slider.__init__(self, **kwargs)
-        self.fine_control = fine_control
+
+        slider_range = self.max - self.min
+        self.control_map = {
+            'fine': fine_control or min(1, slider_range / 100),
+            'medium': medium_control or sqrt(slider_range / 5),
+            'coarse': coarse_control or slider_range / 5
+        }
 
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
@@ -152,14 +160,13 @@ class FocusSlider(FocusWidget, Slider):
         if key not in ('=', '-'):
             return False
 
-        slider_range = self.max - self.min
-        step = mods_to_step_size(modifiers)
+        step = self.control_map[mods_to_step_size(modifiers)]
 
         if key == '=':
-            self.value = incr(self.value, self.min, self.max, step)
+            self.value = incr(self.value, self.max, step)
 
         else:
-            self.value = decr(self.value, self.min, self.max, step)
+            self.value = decr(self.value, self.min, step)
 
         return True
 
@@ -226,10 +233,24 @@ class FocusTreeView(FocusWidget, TreeView):
 
 class FocusVideoPlayer(FocusWidget, VideoPlayer):
     """"""
-    def __init__(self, volume_levels=3, **kwargs):
+    def __init__(self, fine_control=None, medium_control=None, coarse_control=None,
+                    volume_interval=0.2, **kwargs):
         FocusWidget.__init__(self, **kwargs)
         VideoPlayer.__init__(self, **kwargs)
-        self.volume_interval = 1 / volume_levels
+        self.volume_interval = volume_interval
+        self.fine_control = fine_control
+        self.medium_control = medium_control
+        self.coarse_control = coarse_control
+
+        self.bind(duration=self.set_control_map)
+
+
+    def set_control_map(self, *args):
+        self.control_map = {
+            'fine': self.fine_control or min(1, self.duration / 100),
+            'medium': self.medium_control or int(sqrt(self.duration / 5)),
+            'coarse': self.coarse_control or (self.duration // 5)
+        }
 
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
@@ -249,17 +270,20 @@ class FocusVideoPlayer(FocusWidget, VideoPlayer):
         elif key == '-':
             self.volume = max(self.volume - self.volume_interval, 0)
 
-        # Seek TODO: change controls to [ and ]
-        elif key in ('right', 'left'):
-            step = mods_to_step_size(modifiers)
+        # Seeking
+        elif key in (']', '['):
 
-            if key == 'right':
-                self.position = incr(self.position, max_val=self.duration,
-                                    step=step, min_step_size=3)
+            # Video hasn't loaded; don't try to seek through it
+            if self.duration == -1:
+                return False
+
+            step = self.control_map[mods_to_step_size(modifiers)]
+
+            if key == ']':
+                self.position = incr(self.position, self.duration, step)
 
             else:
-                self.position = decr(self.position, max_val=self.duration,
-                                    step=step, min_step_size=3)
+                self.position = decr(self.position, 0, step)
 
         # A key we don't care about
         else:
