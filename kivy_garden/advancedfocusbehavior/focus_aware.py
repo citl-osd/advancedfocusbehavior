@@ -5,7 +5,9 @@ from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.modalview import ModalView
 from kivy.uix.pagelayout import PageLayout
+from kivy.uix.popup import Popup
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.scatterlayout import ScatterLayout
 from kivy.uix.stacklayout import StackLayout
@@ -42,11 +44,33 @@ class FocusGridLayout(FocusAwareWidget, GridLayout):
         FocusAwareWidget.__init__(self, **kwargs)
 
 
+class FocusModalView(FocusAwareWidget, ModalView):
+    """"""
+    def __init__(self, focus_return=None, **kwargs):
+        FocusAwareWidget.__init__(self, **kwargs)
+        ModalView.__init__(self, **kwargs)
+        self.focus_return = focus_return
+
+        self.bind(on_dismiss=self.lose_focus)
+
+
+    def lose_focus(self, *args):
+        focus_return = self.focus_return
+        if focus_return:
+            focus_return.focus_first()
+
+
 class FocusPageLayout(FocusAwareWidget, PageLayout):
     """"""
     def __init__(self, **kwargs):
         PageLayout.__init__(self, **kwargs)
         FocusAwareWidget.__init__(self, **kwargs)
+
+
+class FocusPopup(FocusModalView, Popup):
+    """"""
+    def __init__(self, focus_return=None, **kwargs):
+        FocusModalView.__init__(self, focus_return=focus_return, **kwargs)
 
 
 class FocusRelativeLayout(FocusAwareWidget, RelativeLayout):

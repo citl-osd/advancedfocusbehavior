@@ -79,6 +79,16 @@ class FocusAwareWidget:
         return None
 
 
+    def focus_first(self):
+        """"""
+        for widg in self.walk(loopback=True):
+            if hasattr(widg, 'focus'):
+                widg.focus = True
+                return widg
+
+        return None
+
+
     def set_focus_target(self, new_target):
         """"""
         if not (new_target and self.focus_target):

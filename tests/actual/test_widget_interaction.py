@@ -15,7 +15,11 @@ from common import run_in_app
 from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
             FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox, \
             FocusSlider, FocusToggleButton, FocusScreen, FocusScreenManager, \
-            FocusVideoPlayer, FocusTabbedPanel
+            FocusVideoPlayer, FocusTabbedPanel, FocusModalView, FocusPopup
+
+
+def default_container():
+    return FocusBoxLayout(orientation='vertical', padding=30, spacing=30)
 
 
 class CheckActionApp(App):
@@ -82,7 +86,7 @@ def test_cycle_through_focusables():
         app.stop()
 
 
-    container = FocusBoxLayout(orientation='vertical', padding=20, spacing=20)
+    container = default_container()
     container.add_widget(Label(text=('Press Tab once to cycle to the next widget, '
                                      'then press Shift+Tab once to cycle back.')))
     first = FocusButton(text='button 1')
@@ -135,7 +139,7 @@ def test_carousel():
 @run_in_app(app_class=CheckActionApp)
 def test_checkbox():
     app = App.get_running_app()
-    container = FocusBoxLayout(orientation='vertical', padding=10, spacing=10)
+    container = default_container()
     lb = Label(text='Activate the checkbox, then press the button below it.')
     cb = FocusCheckBox()
     btn = FocusButton(text='Test checkbox')
@@ -157,7 +161,7 @@ def test_checkbox():
 @run_in_app(app_class=CheckActionApp)
 def test_toggle_button():
     app = App.get_running_app()
-    container = FocusBoxLayout(orientation='vertical', padding=10, spacing=10)
+    container = default_container()
     lb = Label(text='Activate the toggle button, then press the button below it.')
     tb = FocusToggleButton(text='off')
     btn = FocusButton(text='Test toggle button')
@@ -185,7 +189,7 @@ def test_toggle_button():
 def test_slider():
     value = 48
     app = App.get_running_app()
-    container = FocusBoxLayout(orientation='vertical', padding=10, spacing=10)
+    container = default_container()
     instruction_label = Label(text=f'Set the slider to {value}')
     pos_label = Label()
     slider = FocusSlider()
@@ -220,13 +224,13 @@ def test_screen_manager():
                                 ' the button at the bottom of the app.'))
 
     s1 = FocusScreen(name='screen_1')
-    container_1 = FocusBoxLayout(orientation='vertical', padding=30, spacing=30)
+    container_1 = default_container()
     to_screen_2 = FocusButton(text='To screen 2 ->')
     container_1.add_widget(to_screen_2)
     s1.add_widget(container_1)
 
     s2 = FocusScreen(name='screen_2')
-    container_2 = FocusBoxLayout(orientation='vertical', padding=30, spacing=30)
+    container_2 = default_container()
     step_1_btn = FocusButton(text='Press me first!')
     container_2.add_widget(step_1_btn)
     s2.add_widget(container_2)
@@ -266,7 +270,7 @@ def test_screen_manager():
 def test_video_player():
     target = 5  # seconds
     app = App.get_running_app()
-    container = FocusBoxLayout(orientation='vertical', padding=30, spacing=30)
+    container = default_container()
     instructions = Label(text=(f'1. Navigate to {target} seconds in the video\n'
                                 '2. Mute the audio'), size_hint_y=0.1)
     player = FocusVideoPlayer(source='tests/actual/test_data/mandelbrot.mp4')
@@ -292,12 +296,12 @@ def test_video_player():
 def test_tabbed_panel():
     app = App.get_running_app()
     app.step_1 = False
-    container = FocusBoxLayout(orientation='vertical', padding=30, spacing=30)
+    container = default_container()
     instructions = Label(text='Press the button on the next tab, then press Submit.')
     tab_btn = FocusButton(text='Press me first')
     submit_btn = FocusButton(text='Submit', size_hint_y=0.1)
 
-    inner_container = FocusBoxLayout(orientation='vertical')
+    inner_container = default_container()
     ignore_btn = FocusButton(text='Ignore me')
     inner_container.add_widget(instructions)
     inner_container.add_widget(ignore_btn)
@@ -329,4 +333,53 @@ def test_tabbed_panel():
     container.add_widget(submit_btn)
 
     app.root.add_widget(container)
+    return True
+
+
+@run_in_app(app_class=CheckActionApp)
+def test_modal_view():
+    app = App.get_running_app()
+    container = default_container()
+
+    def show_modal():
+        view = FocusModalView(focus_return=container, auto_dismiss=False, size_hint=(0.5, 0.5))
+        dismiss_btn = FocusButton(text='Dismiss this modal', on_press=lambda _: view.dismiss())
+        view.add_widget(dismiss_btn)
+        view.open()
+
+
+    def submit(*args):
+        app.did_action = True
+        app.stop()
+
+    submit_btn = FocusButton(text='Press this after dismissing the modal view', on_press=submit)
+    container.add_widget(submit_btn)
+    app.root.add_widget(container)
+    Clock.schedule_once(lambda _: show_modal())
+    return True
+
+
+@run_in_app(app_class=CheckActionApp)
+def test_popup():
+    app = App.get_running_app()
+    container = default_container()
+
+    def show_popup():
+        inner_container = default_container()
+        dismiss_btn = FocusButton(text='Dismiss this popup')
+        view = FocusPopup(title='Popup', content=inner_container, focus_return=container,
+                            auto_dismiss=False, size_hint=(0.5, 0.5))
+        dismiss_btn.bind(on_press=lambda *args: view.dismiss())
+        inner_container.add_widget(dismiss_btn)
+        view.open()
+
+
+    def submit(*args):
+        app.did_action = True
+        app.stop()
+
+    submit_btn = FocusButton(text='Press this after dismissing the popup', on_press=submit)
+    container.add_widget(submit_btn)
+    app.root.add_widget(container)
+    Clock.schedule_once(lambda _: show_popup())
     return True

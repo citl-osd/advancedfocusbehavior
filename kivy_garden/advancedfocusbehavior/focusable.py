@@ -11,8 +11,9 @@ from kivy.uix.codeinput import CodeInput
 from kivy.uix.colorpicker import ColorPicker
 from kivy.uix.dropdown import DropDown
 from kivy.uix.filechooser import FileChooser, FileChooserListView, FileChooserIconView
-from kivy.uix.modalview import ModalView
-from kivy.uix.pagelayout import PageLayout
+#from kivy.uix.modalview import ModalView
+#from kivy.uix.popup import Popup
+#from kivy.uix.pagelayout import PageLayout
 # TODO: recycleview
 from kivy.uix.screenmanager import Screen
 # TODO: settings
@@ -44,6 +45,7 @@ class FocusButton(FocusButtonBehavior, Button, FocusWidget):
         Button.__init__(self, **kwargs)
 
 
+# TODO: fix focusing on hidden widgets
 class FocusCarousel(FocusWidget, Carousel):
     """"""
     def __init__(self, **kwargs):
@@ -120,10 +122,6 @@ class FocusFileChooserIconView(FocusWidget, FileChooserIconView):
     """"""
 
 
-class FocusModalView(FocusWidget, ModalView):
-    """"""
-
-
 class FocusScreen(FocusWidget, Screen):
     """"""
 
@@ -131,6 +129,7 @@ class FocusScreen(FocusWidget, Screen):
 # settings
 
 
+# TODO: allow specification of step sizes
 class FocusSlider(FocusWidget, Slider):
     """
 
@@ -250,7 +249,7 @@ class FocusVideoPlayer(FocusWidget, VideoPlayer):
         elif key == '-':
             self.volume = max(self.volume - self.volume_interval, 0)
 
-        # Seek
+        # Seek TODO: change controls to [ and ]
         elif key in ('right', 'left'):
             step = mods_to_step_size(modifiers)
 
