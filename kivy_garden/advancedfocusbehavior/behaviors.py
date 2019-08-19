@@ -212,7 +212,6 @@ def mods_to_step_size(mods):
     elif 'shift' in mods:
         return 'coarse'
 
-    # Just right control
     return 'medium'
 
 

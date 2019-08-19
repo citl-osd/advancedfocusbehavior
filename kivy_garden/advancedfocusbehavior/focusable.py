@@ -50,21 +50,6 @@ class FocusButton(FocusButtonBehavior, Button, FocusWidget):
 # TODO: fix focusing on hidden widgets
 class FocusCarousel(FocusWidget, Carousel):
     """"""
-    def __init__(self, **kwargs):
-        FocusWidget.__init__(self, **kwargs)
-        Carousel.__init__(self, **kwargs)
-
-        self.bind(current_slide=self.on_change_slide)
-
-
-    def on_change_slide(self, carousel, slide):
-        if isinstance(slide, FocusAwareWidget):
-            slide.enable_focus()
-
-        for s in self.slides:
-            if s is not slide and isinstance(s, FocusAwareWidget):
-                s.disable_focus()
-
     # (key, direction)
     keymap = {
         ('right', 'right'): 'next',
@@ -78,8 +63,29 @@ class FocusCarousel(FocusWidget, Carousel):
     }
 
 
+    def __init__(self, **kwargs):
+        FocusWidget.__init__(self, **kwargs)
+        Carousel.__init__(self, **kwargs)
+
+        self.bind(current_slide=self.on_change_slide)
+
+
+    def add_widget(self, widget, index=0, canvas=None):
+        Carousel.add_widget(self, widget, index=index, canvas=canvas)
+        if len(self.slides) > 1 and isinstance(widget, FocusAwareWidget):
+            widget.disable_focus()
+
+
+    def on_change_slide(self, carousel, slide):
+        if isinstance(slide, FocusAwareWidget):
+            slide.enable_focus()
+
+        for s in self.slides:
+            if s is not slide and isinstance(s, FocusAwareWidget):
+                s.disable_focus()
+
+
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
-        #print(keycode)
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
             return True
 
