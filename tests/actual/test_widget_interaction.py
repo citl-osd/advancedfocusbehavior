@@ -6,6 +6,7 @@ from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from kivy.uix.tabbedpanel import TabbedPanelItem
 import pytest
 
 from math import isclose
@@ -14,7 +15,7 @@ from common import run_in_app
 from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
             FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox, \
             FocusSlider, FocusToggleButton, FocusScreen, FocusScreenManager, \
-            FocusVideoPlayer
+            FocusVideoPlayer, FocusTabbedPanel
 
 
 class CheckActionApp(App):
@@ -284,4 +285,48 @@ def test_video_player():
 
     app.root.add_widget(container)
 
+    return True
+
+
+@run_in_app(app_class=CheckActionApp)
+def test_tabbed_panel():
+    app = App.get_running_app()
+    app.step_1 = False
+    container = FocusBoxLayout(orientation='vertical', padding=30, spacing=30)
+    instructions = Label(text='Press the button on the next tab, then press Submit.')
+    tab_btn = FocusButton(text='Press me first')
+    submit_btn = FocusButton(text='Submit', size_hint_y=0.1)
+
+    inner_container = FocusBoxLayout(orientation='vertical')
+    ignore_btn = FocusButton(text='Ignore me')
+    inner_container.add_widget(instructions)
+    inner_container.add_widget(ignore_btn)
+
+    tp = FocusTabbedPanel()
+    tp.default_tab_content = inner_container
+    item = TabbedPanelItem(text='Go here')
+    item.add_widget(tab_btn)
+    tp.add_widget(item)
+
+    def press_ignore(*args):    # Auto fail
+        app.stop()
+
+
+    def press_step_1(*args):
+        app.step_1 = True
+
+
+    def submit(*args):
+        if app.step_1:
+            app.did_action = True
+            app.stop()
+
+    ignore_btn.bind(on_press=press_ignore)
+    tab_btn.bind(on_press=press_step_1)
+    submit_btn.bind(on_press=submit)
+
+    container.add_widget(tp)
+    container.add_widget(submit_btn)
+
+    app.root.add_widget(container)
     return True

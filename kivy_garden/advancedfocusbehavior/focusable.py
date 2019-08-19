@@ -169,8 +169,37 @@ class FocusSpinner(FocusWidget, Spinner):
     """"""
 
 
-class FocusTabbedPanel(FocusWidget, TabbedPanel):
+class FocusTabbedPanel(FocusToggleButtonBehavior, FocusWidget, TabbedPanel):
     """"""
+    def __init__(self, **kwargs):
+        FocusToggleButtonBehavior.__init__(self, **kwargs)
+        FocusWidget.__init__(self, **kwargs)
+        TabbedPanel.__init__(self, **kwargs)
+
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        if keycode[1] == 'tab' and 'ctrl' in modifiers:
+            tab_list = self.tab_list
+            current_tab = self.current_tab
+            current_idx = tab_list.index(current_tab)
+
+            if 'shift' in modifiers:    # Backwards
+                if current_idx < len(tab_list) - 1:
+                    self.switch_to(tab_list[current_idx + 1])
+
+                else:
+                    self.switch_to(tab_list[0])
+
+            else:                       # Forwards
+                if current_idx > 0:
+                    self.switch_to(tab_list[current_idx - 1])
+
+                else:
+                    self.switch_to(tab_list[len(tab_list) - 1])
+
+            return True
+
+        return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
 
 class FocusTextInput(FocusWidget, TextInput):   # TextInput already uses FocusBehavior and highlights itself
@@ -198,7 +227,7 @@ class FocusTreeView(FocusWidget, TreeView):
 
 class FocusVideoPlayer(FocusWidget, VideoPlayer):
     """"""
-    def __init__(self, volume_levels=5, **kwargs):
+    def __init__(self, volume_levels=3, **kwargs):
         FocusWidget.__init__(self, **kwargs)
         VideoPlayer.__init__(self, **kwargs)
         self.volume_interval = 1 / volume_levels

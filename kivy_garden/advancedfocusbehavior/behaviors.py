@@ -52,25 +52,6 @@ class FocusAwareWidget:
                 self.set_focus_target(widget.focus_target)
 
 
-        else:
-            # We already have a focused widget. If the new tree has a focused
-            # widget too, we need to defocus it.
-            # TODO: this may never happen anymore; remove it?
-            if isinstance(widget, FocusAwareWidget) and widget.focus_target:
-                orig_target = widget.focus_target
-                ptr = widget
-                filter_func = lambda w: isinstance(w, FocusAwareWidget) and \
-                                                w.focus_target is orig_target
-
-                while ptr.focus_target is not ptr:
-                    ptr.focus_target = None
-                    ptr = next(filter(filter_func, ptr.children))
-
-                # ptr is now widget being defocused
-                ptr.focus_target = None
-                ptr.focus = False
-
-
     def remove_widget(self, widget):
         if widget.focus:
             widget.focus = False
@@ -78,15 +59,6 @@ class FocusAwareWidget:
             focus_next = widget.get_focus_next()    # could also be prev
             if focus_next:
                 focus_next.focus = True
-
-            #for widg in widget.walk_reverse(loopback=True): # could also be walk?
-            #    if widg is not widget and isinstance(widg, FocusWidget):
-            #        new_focus = widg
-            #        new_focus.set_focus_target(new_focus)
-            #        break
-
-            #else:
-            #    self.set_focus_target(None)
 
         super().remove_widget(widget)
 
