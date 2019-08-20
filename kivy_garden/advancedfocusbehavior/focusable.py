@@ -1,6 +1,7 @@
 import kivy
 kivy.require('1.11.1')
 
+from kivy.event import EventDispatcher
 from kivy.uix.accordion import Accordion
 # TODO: action bar
 
@@ -308,9 +309,75 @@ class FocusToggleButton(FocusToggleButtonBehavior, FocusWidget, ToggleButton):
 
 class FocusTreeView(FocusWidget, TreeView):
     """"""
+    def __init__(self, **kwargs):
+        FocusWidget.__init__(self, **kwargs)
+        TreeView.__init__(self, **kwargs)
+
+        #self.bind(focus=self._on_focus)
 
 
-# TreeViewNode
+    def _on_focus(self, widg, val):
+        print(f'Focus: {val}')
+        #if val and not self.selected_node:
+        #    self.select_node(self.root)
+
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        print(keycode)
+        if super().keyboard_on_key_down(window, keycode, text, modifiers):
+            return True
+
+        key = keycode[1]
+        selected = self.selected_node
+
+        if key in ('up', 'down'):
+            if key == 'down':
+                try:
+                    it = self.iterate_open_nodes(selected)
+                    if not self.hide_root:
+                        next(it)
+
+                    new_node = next(it)
+
+                except StopIteration:   # No other nodes to cycle to
+                    return False
+
+            else:   # We don't get to iterate backwards :(
+                try:
+                    new_node = list(self.iterate_open_nodes(selected))[-1]
+
+                except IndexError:      # No other nodes to cycle to
+                    return False
+
+            self.select_node(new_node)
+
+        elif (key == 'right' and not selected.is_open) or (key == 'left' and selected.is_open):
+            self.toggle_node(selected)
+
+        elif key == 'enter' and hasattr(selected, 'focus'):
+            selected.focus = True
+            return selected.keyboard_on_key_down(window, keycode, text, modifiers)
+
+        else:
+            return False
+
+        return True
+
+
+class FocusTreeViewNode(TreeViewNode, EventDispatcher):
+    """"""
+    def __init__(self, **kwargs):
+        if self.__class__ is FocusTreeViewNode:
+            raise TreeViewException('You cannot use FocusTreeViewNode directly.')
+
+        if hasattr(self, 'focus'):
+            self.bind(is_selected=self._set_focus)
+
+        super().__init__(**kwargs)
+
+
+    def _set_focus(self, widg, val):
+        self.is_focusable = val
 
 
 class FocusVideoPlayer(FocusWidget, VideoPlayer):

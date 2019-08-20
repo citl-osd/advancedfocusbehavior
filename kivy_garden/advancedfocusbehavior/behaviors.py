@@ -54,7 +54,7 @@ class FocusAwareWidget:
 
 
     def remove_widget(self, widget):
-        if widget.focus:
+        if hasattr(widget, 'focus') and widget.focus:
             widget.focus = False
 
             focus_next = widget.get_focus_next()    # could also be prev
@@ -182,6 +182,8 @@ class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
             FocusBehavior.__init__(self, **kwargs)
 
         ButtonBehavior.__init__(self, **kwargs)
+
+        #self.bind(on_press=lambda *args: self.focus = True)
 
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):

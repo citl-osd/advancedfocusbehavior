@@ -7,6 +7,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.tabbedpanel import TabbedPanelItem
+from kivy.uix.treeview import TreeViewLabel
 import pytest
 
 from math import isclose
@@ -16,7 +17,8 @@ from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
             FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox, \
             FocusSlider, FocusToggleButton, FocusScreen, FocusScreenManager, \
             FocusVideoPlayer, FocusTabbedPanel, FocusModalView, FocusPopup, \
-            FocusAccordion, FocusAccordionItem, FocusScrollView, FocusGridLayout
+            FocusAccordion, FocusAccordionItem, FocusScrollView, FocusGridLayout, \
+            FocusTreeView, FocusTreeViewNode
 
 
 def default_container():
@@ -465,5 +467,55 @@ def test_scroll_view():
     for widg in (instructions, sv, button_container):
         container.add_widget(widg)
 
+    app.root.add_widget(container)
+    return True
+
+
+class TreeViewFocusButton(FocusTreeViewNode, FocusButton):
+    pass
+
+
+@run_in_app(app_class=CheckActionApp, timeout=30)
+def test_tree_view():
+    app = App.get_running_app()
+    app.step_1 = False
+    instructions = Label(text='Press the first button under the first element, then the second button under the second element.', size_hint_y=0.1)
+
+    tv = FocusTreeView()
+    node_1 = TreeViewLabel(text='Go here first')
+    node_2 = TreeViewLabel(text='Go here second')
+    btn_1 = TreeViewFocusButton(text='Press me first')
+    btn_2 = TreeViewFocusButton(text='Press me second')
+    fake_button = FocusButton(text='Ignore me')
+
+    def step_1(*args):
+        app.step_1 = True
+
+
+    def submit(*args):
+        if app.step_1:
+            app.did_action = True
+            app.stop()
+
+
+    def report_focus(*args):
+        print(f'Tree: Focus={tv.focus}, is_focusable={tv.is_focusable}')
+        for btn in (btn_1, btn_2, fake_button):
+            print(f'{btn.text}: Focus={btn.focus}, is_focusable={btn.is_focusable}')
+
+    fake_button.bind(on_press=report_focus)
+
+    btn_1.bind(on_press=step_1)
+    btn_2.bind(on_press=submit)
+
+    tv.add_node(node_1)
+    tv.add_node(node_2)
+    tv.add_node(btn_1, node_1)
+    tv.add_node(btn_2, node_2)
+
+    container = default_container()
+    container.add_widget(instructions)
+    container.add_widget(tv)
+    container.add_widget(fake_button)
     app.root.add_widget(container)
     return True
