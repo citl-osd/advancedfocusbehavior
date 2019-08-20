@@ -34,6 +34,49 @@ from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget, \
 
 class FocusAccordion(FocusWidget, Accordion):
     """"""
+    def __init__(self, **kwargs):
+        FocusWidget.__init__(self, **kwargs)
+        Accordion.__init__(self, **kwargs)
+
+
+    def active_item(self):
+        for i, child in enumerate(self.children):
+            if not child.collapse:
+                return i, child
+
+        return None
+
+
+    def select(self, instance):
+        #print('calling select')
+        super().select(instance)
+        for child in self.children:
+            if isinstance(child, FocusAwareWidget):
+                child.set_focus_enabled(child is instance)
+
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        if keycode[1] == 'tab' and 'ctrl' in modifiers:
+            i, open_item = self.active_item()
+            children = self.children
+
+            if 'shift' in modifiers:    # Backwards
+                if i < len(children) - 1:
+                    self.select(children[i + 1])
+
+                else:
+                    self.select(children[0])
+
+            else:                       # Forwards
+                if i > 0:
+                    self.select(children[i - 1])
+
+                else:
+                    self.select(children[-1])
+
+            return True
+
+        return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
 
 # FocusActionBar and friends
@@ -47,7 +90,6 @@ class FocusButton(FocusButtonBehavior, Button, FocusWidget):
         Button.__init__(self, **kwargs)
 
 
-# TODO: fix focusing on hidden widgets
 class FocusCarousel(FocusWidget, Carousel):
     """"""
     # (key, direction)
@@ -137,7 +179,6 @@ class FocusScreen(FocusWidget, Screen):
 # settings
 
 
-# TODO: allow specification of step sizes
 class FocusSlider(FocusWidget, Slider):
     """
 
@@ -181,10 +222,9 @@ class FocusSpinner(FocusWidget, Spinner):
     """"""
 
 
-class FocusTabbedPanel(FocusToggleButtonBehavior, FocusWidget, TabbedPanel):
+class FocusTabbedPanel(FocusWidget, TabbedPanel):
     """"""
     def __init__(self, **kwargs):
-        FocusToggleButtonBehavior.__init__(self, **kwargs)
         FocusWidget.__init__(self, **kwargs)
         TabbedPanel.__init__(self, **kwargs)
 
@@ -207,7 +247,7 @@ class FocusTabbedPanel(FocusToggleButtonBehavior, FocusWidget, TabbedPanel):
                     self.switch_to(tab_list[current_idx - 1])
 
                 else:
-                    self.switch_to(tab_list[len(tab_list) - 1])
+                    self.switch_to(tab_list[-1])
 
             return True
 

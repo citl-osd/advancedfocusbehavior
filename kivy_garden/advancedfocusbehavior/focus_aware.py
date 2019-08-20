@@ -1,6 +1,7 @@
 import kivy
 kivy.require('1.11.1')
 
+from kivy.uix.accordion import AccordionItem
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -14,6 +15,13 @@ from kivy.uix.stacklayout import StackLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 
 from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget, FocusWidget
+
+
+class FocusAccordionItem(FocusAwareWidget, AccordionItem):
+    """"""
+    def __init__(self, **kwargs):
+        FocusAwareWidget.__init__(self, **kwargs)
+        AccordionItem.__init__(self, **kwargs)
 
 
 class FocusAnchorLayout(FocusAwareWidget, AnchorLayout):

@@ -15,7 +15,8 @@ from common import run_in_app
 from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
             FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox, \
             FocusSlider, FocusToggleButton, FocusScreen, FocusScreenManager, \
-            FocusVideoPlayer, FocusTabbedPanel, FocusModalView, FocusPopup
+            FocusVideoPlayer, FocusTabbedPanel, FocusModalView, FocusPopup, \
+            FocusAccordion, FocusAccordionItem
 
 
 def default_container():
@@ -123,13 +124,15 @@ def test_carousel():
     car = FocusCarousel(direction='right')
     car.add_widget(Label(text='Navigate to the right in the carousel'))
 
+    container = default_container()
     btn_1 = FocusButton(text='Press me')
     btn_2 = FocusButton(text='Press me after you\'ve pressed the other button')
 
     btn_1.bind(on_press=press_1)
     btn_2.bind(on_press=press_2)
 
-    car.add_widget(btn_1)
+    container.add_widget(btn_1)
+    car.add_widget(container)
     app.root.add_widget(car)
     app.root.add_widget(btn_2)
 
@@ -382,4 +385,50 @@ def test_popup():
     container.add_widget(submit_btn)
     app.root.add_widget(container)
     Clock.schedule_once(lambda _: show_popup())
+    return True
+
+
+@run_in_app(app_class=CheckActionApp, timeout=20)
+def test_accordion():
+    app = App.get_running_app()
+    app.step_1 = False
+
+    instructions = Label(text='Navigate to the next accordion section.')
+    step_1_btn = FocusButton(text='Press me first')
+    submit_btn = FocusButton(text='Press me second')
+
+    container_1 = default_container()
+    container_1.add_widget(instructions)
+
+    container_2 = default_container()
+    container_2.add_widget(step_1_btn)
+
+    acc = FocusAccordion()
+    item_1 = FocusAccordionItem()
+    item_1.add_widget(container_1)
+    acc.add_widget(item_1)
+    item_2 = FocusAccordionItem()
+    item_2.add_widget(container_2)
+    acc.add_widget(item_2)
+
+    acc.select(item_1)
+
+    container = default_container()
+    container.add_widget(acc)
+    container.add_widget(submit_btn)
+
+    def step_1(*args):
+        app.step_1 = True
+
+
+    def submit(*args):
+        if app.step_1:
+            app.did_action = True
+            app.stop()
+
+
+    step_1_btn.bind(on_press=step_1)
+    submit_btn.bind(on_press=submit)
+
+    app.root.add_widget(container)
     return True

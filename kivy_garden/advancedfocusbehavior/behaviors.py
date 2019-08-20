@@ -12,6 +12,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.event import EventDispatcher
 from kivy.graphics import Color, Rectangle
+from kivy.uix.accordion import AccordionItem
 from kivy.uix.behaviors.button import ButtonBehavior
 from kivy.uix.behaviors.focus import FocusBehavior
 from kivy.uix.behaviors.togglebutton import ToggleButtonBehavior
@@ -117,6 +118,9 @@ class FocusAwareWidget:
 
             elif isinstance(next_widget, ScreenManager):
                 children = next_widget.screens
+
+            elif isinstance(next_widget, AccordionItem):
+                children = next_widget.container.children
 
             else:
                 children = next_widget.children
