@@ -16,6 +16,7 @@ from kivy.uix.filechooser import FileChooser, FileChooserListView, FileChooserIc
 #from kivy.uix.pagelayout import PageLayout
 # TODO: recycleview
 from kivy.uix.screenmanager import Screen
+from kivy.uix.scrollview import ScrollView
 # TODO: settings
 from kivy.uix.slider import Slider
 from kivy.uix.spinner import Spinner
@@ -156,8 +157,9 @@ class FocusColorPicker(FocusWidget, ColorPicker):
     """"""
 
 
-class FocusDropDown(FocusWidget, DropDown):
-    """"""
+# unnecessary; all focus functionality is encapsulated in children
+#class FocusDropDown(FocusWidget, DropDown):
+#    """"""
 
 
 class FocusFileChooser(FocusWidget, FileChooser):
@@ -177,6 +179,40 @@ class FocusScreen(FocusWidget, Screen):
 
 
 # settings
+
+
+class FocusScrollView(FocusWidget, ScrollView):
+    """"""
+    scroll_dist = 20    # TODO: base this on dpi instead?
+
+    def __init__(self, **kwargs):
+        FocusWidget.__init__(self, **kwargs)
+        ScrollView.__init__(self, **kwargs)
+
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        if super().keyboard_on_key_down(window, keycode, text, modifiers):
+            return True
+
+        key = keycode[1]
+        scroll_dist_x, scroll_dist_y = self.convert_distance_to_scroll(self.scroll_dist, self.scroll_dist)
+
+        if key == 'up':
+            self.scroll_y = incr(self.scroll_y, 1, scroll_dist_y)
+
+        elif key == 'down':
+            self.scroll_y = decr(self.scroll_y, 0, scroll_dist_y)
+
+        elif key == 'right':
+            self.scroll_x = incr(self.scroll_x, 1, scroll_dist_x)
+
+        elif key == 'left':
+            self.scroll_x = decr(self.scroll_x, 0, scroll_dist_x)
+
+        else:
+            return False
+
+        return True
 
 
 class FocusSlider(FocusWidget, Slider):

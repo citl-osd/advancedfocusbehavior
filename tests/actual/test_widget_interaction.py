@@ -16,7 +16,7 @@ from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
             FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox, \
             FocusSlider, FocusToggleButton, FocusScreen, FocusScreenManager, \
             FocusVideoPlayer, FocusTabbedPanel, FocusModalView, FocusPopup, \
-            FocusAccordion, FocusAccordionItem
+            FocusAccordion, FocusAccordionItem, FocusScrollView, FocusGridLayout
 
 
 def default_container():
@@ -429,6 +429,41 @@ def test_accordion():
 
     step_1_btn.bind(on_press=step_1)
     submit_btn.bind(on_press=submit)
+
+    app.root.add_widget(container)
+    return True
+
+
+@run_in_app(app_class=CheckActionApp, timeout=25)
+def test_scroll_view():
+    app = App.get_running_app()
+    instructions = Label(text='Look through the scroll area to find the correct button to press.', size_hint_y=0.1)
+    correct_button = 'Button 3'
+
+    scroll_container = FocusGridLayout(cols=10, size_hint=(None, None), size=(1000, 1000))
+    for _ in range(99):
+        scroll_container.add_widget(Label(text='Ignore me'))
+
+    scroll_container.add_widget(Label(text=correct_button))
+
+    button_container = FocusBoxLayout(orientation='horizontal', padding=10, spacing=10, size_hint_y=0.15)
+
+    def guess(btn, *args):
+        if btn.text == correct_button:
+            app.did_action = True
+
+        app.stop()
+
+    for i in range(5):
+        btn = FocusButton(text=f'Button {i}')
+        btn.bind(on_press=guess)
+        button_container.add_widget(btn)
+
+    container = default_container()
+    sv = FocusScrollView()
+    sv.add_widget(scroll_container)
+    for widg in (instructions, sv, button_container):
+        container.add_widget(widg)
 
     app.root.add_widget(container)
     return True
