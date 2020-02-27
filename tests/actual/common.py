@@ -15,6 +15,8 @@ focus_dest = str(Path(__file__).parents[2].resolve())
 if focus_dest not in sys.path:
     sys.path.append(focus_dest)
 
+from kivy_garden.advancedfocusbehavior import behaviors, focus_aware, focusable
+
 def run_in_app(app_class=App, timeout=15):
 
     @wraps(run_in_app)

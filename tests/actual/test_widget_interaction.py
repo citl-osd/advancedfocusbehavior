@@ -13,12 +13,7 @@ import pytest
 from math import isclose
 
 from common import run_in_app
-from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, \
-            FocusCarousel, FocusTextInput, FocusWidget, FocusCheckBox, \
-            FocusSlider, FocusToggleButton, FocusScreen, FocusScreenManager, \
-            FocusVideoPlayer, FocusTabbedPanel, FocusModalView, FocusPopup, \
-            FocusAccordion, FocusAccordionItem, FocusScrollView, FocusGridLayout, \
-            FocusTreeView, FocusTreeViewNode
+from kivy_garden.advancedfocusbehavior import *
 
 
 def default_container():
@@ -472,7 +467,9 @@ def test_scroll_view():
 
 
 class TreeViewFocusButton(FocusTreeViewNode, FocusButton):
-    pass
+    def __init__(self, **kwargs):
+        FocusTreeViewNode.__init__(self, **kwargs)
+        FocusButton.__init__(self, **kwargs)
 
 
 @run_in_app(app_class=CheckActionApp, timeout=30)
@@ -481,29 +478,23 @@ def test_tree_view():
     app.step_1 = False
     instructions = Label(text='Press the first button under the first element, then the second button under the second element.', size_hint_y=0.1)
 
-    tv = FocusTreeView()
-    node_1 = TreeViewLabel(text='Go here first')
-    node_2 = TreeViewLabel(text='Go here second')
+    tv = FocusTreeView(size_hint_y=0.9)
+    node_1 = FocusTreeViewLabel(text='Go here first', size_hint_y=0.2)
+    node_2 = FocusTreeViewLabel(text='Go here second', size_hint_y=0.2)
     btn_1 = TreeViewFocusButton(text='Press me first')
     btn_2 = TreeViewFocusButton(text='Press me second')
     fake_button = FocusButton(text='Ignore me')
 
     def step_1(*args):
+        print('doing step 1')
         app.step_1 = True
 
 
     def submit(*args):
+        print('doing step 2')
         if app.step_1:
             app.did_action = True
             app.stop()
-
-
-    def report_focus(*args):
-        print(f'Tree: Focus={tv.focus}, is_focusable={tv.is_focusable}')
-        for btn in (btn_1, btn_2, fake_button):
-            print(f'{btn.text}: Focus={btn.focus}, is_focusable={btn.is_focusable}')
-
-    fake_button.bind(on_press=report_focus)
 
     btn_1.bind(on_press=step_1)
     btn_2.bind(on_press=submit)

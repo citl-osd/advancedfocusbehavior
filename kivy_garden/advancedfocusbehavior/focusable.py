@@ -12,6 +12,7 @@ from kivy.uix.codeinput import CodeInput
 from kivy.uix.colorpicker import ColorPicker
 from kivy.uix.dropdown import DropDown
 from kivy.uix.filechooser import FileChooser, FileChooserListView, FileChooserIconView
+from kivy.uix.label import Label
 #from kivy.uix.modalview import ModalView
 #from kivy.uix.popup import Popup
 #from kivy.uix.pagelayout import PageLayout
@@ -28,6 +29,7 @@ from kivy.uix.treeview import TreeView, TreeViewNode
 from kivy.uix.videoplayer import VideoPlayer
 
 from math import sqrt
+import weakref
 
 from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget, \
             FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior, incr, \
@@ -297,6 +299,7 @@ class FocusTextInput(FocusWidget, TextInput):   # TextInput already uses FocusBe
         self.draw_focus = False
         TextInput.__init__(self, write_tab=False, **kwargs)
         FocusWidget.__init__(self, draw_focus=False, **kwargs)
+        self.write_tab = False
 
 
 class FocusToggleButton(FocusToggleButtonBehavior, FocusWidget, ToggleButton):
@@ -307,77 +310,51 @@ class FocusToggleButton(FocusToggleButtonBehavior, FocusWidget, ToggleButton):
         ToggleButton.__init__(self, **kwargs)
 
 
-class FocusTreeView(FocusWidget, TreeView):
+class FocusTreeView(FocusAwareWidget, TreeView):
     """"""
     def __init__(self, **kwargs):
-        FocusWidget.__init__(self, **kwargs)
+        FocusAwareWidget.__init__(self, **kwargs)
         TreeView.__init__(self, **kwargs)
 
-        #self.bind(focus=self._on_focus)
+    def add_node(self, node, parent=None):
+        super().add_node(node, parent)
+        node.tree = weakref.proxy(self)
+        return node
+
+    def remove_node(self, node):
+        super().remove_node(node)
+        del node.tree
 
 
-    def _on_focus(self, widg, val):
-        print(f'Focus: {val}')
-        #if val and not self.selected_node:
-        #    self.select_node(self.root)
-
-
-    def keyboard_on_key_down(self, window, keycode, text, modifiers):
-        print(keycode)
-        if super().keyboard_on_key_down(window, keycode, text, modifiers):
-            return True
-
-        key = keycode[1]
-        selected = self.selected_node
-
-        if key in ('up', 'down'):
-            if key == 'down':
-                try:
-                    it = self.iterate_open_nodes(selected)
-                    if not self.hide_root:
-                        next(it)
-
-                    new_node = next(it)
-
-                except StopIteration:   # No other nodes to cycle to
-                    return False
-
-            else:   # We don't get to iterate backwards :(
-                try:
-                    new_node = list(self.iterate_open_nodes(selected))[-1]
-
-                except IndexError:      # No other nodes to cycle to
-                    return False
-
-            self.select_node(new_node)
-
-        elif (key == 'right' and not selected.is_open) or (key == 'left' and selected.is_open):
-            self.toggle_node(selected)
-
-        elif key == 'enter' and hasattr(selected, 'focus'):
-            selected.focus = True
-            return selected.keyboard_on_key_down(window, keycode, text, modifiers)
-
-        else:
-            return False
-
-        return True
-
-
-class FocusTreeViewNode(TreeViewNode, EventDispatcher):
+class FocusTreeViewNode(TreeViewNode, FocusWidget):
     """"""
     def __init__(self, **kwargs):
         if self.__class__ is FocusTreeViewNode:
             raise TreeViewException('You cannot use FocusTreeViewNode directly.')
 
-        if hasattr(self, 'focus'):
-            self.bind(is_selected=self._set_focus)
+        #if hasattr(self, 'focus'):
+        #    self.bind(is_selected=self._set_focus)
 
         super().__init__(**kwargs)
 
 
     def _set_focus(self, widg, val):
         self.is_focusable = val
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        if super().keyboard_on_key_down(window, keycode, text, modifiers):
+            return True
+
+        key = keycode[1]
+        if key in ('enter', 'numpadenter'):
+            self.tree.toggle_node(self)
+            return True
+
+        return False
+
+
+class FocusTreeViewLabel(Label, FocusTreeViewNode):
+    pass
 
 
 class FocusVideoPlayer(FocusWidget, VideoPlayer):
