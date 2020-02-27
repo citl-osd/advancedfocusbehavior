@@ -13,22 +13,22 @@ Please see the garden [instructions](https://kivy-garden.github.io) for how to u
 Flower information
 -------------------
 
-A kivy garden flower demo.
+advancedfocusbehavior is an extension of Kivy's [FocusBehavior](https://kivy.org/doc/stable/api-kivy.uix.behaviors.focus.html) for easier keyboard navigation. It includes a few new mixin classes, as well as focusable versions of most of the default widgets.
 
 Install
 ---------
 
 ```sh
-pip install kivy_garden.flower
+pip install kivy_garden.advancedfocusbehavior
 ```
 
 #### Usage
 
 ```py
-do_something
+TODO: make a demo app
 ```
 
-TODO
+TODO: put relevant examples here
 -------
 
 * add your code

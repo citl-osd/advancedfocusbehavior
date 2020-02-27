@@ -72,10 +72,8 @@ def test_focus_override():
 
     assert a.focus
     assert container.focus_target is a
-    print('a is focused')
 
     c.focus = True
-    print('c is focused')
 
     assert c.focus
     assert container.focus_target is c

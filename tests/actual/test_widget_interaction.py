@@ -486,12 +486,10 @@ def test_tree_view():
     fake_button = FocusButton(text='Ignore me')
 
     def step_1(*args):
-        print('doing step 1')
         app.step_1 = True
 
 
     def submit(*args):
-        print('doing step 2')
         if app.step_1:
             app.did_action = True
             app.stop()
