@@ -325,6 +325,17 @@ class FocusTreeView(FocusAwareWidget, TreeView):
         super().remove_node(node)
         del node.tree
 
+    def _do_layout(self, tree_node):
+        focus_return = None
+        for node in self.iterate_open_nodes():
+            if hasattr(node, 'focus') and node.focus:
+                focus_return = node
+                break
+
+        super()._do_layout(tree_node)
+        if focus_return:
+            focus_return.focus = True
+
 
 class FocusTreeViewNode(TreeViewNode, FocusWidget):
     """"""
@@ -332,8 +343,8 @@ class FocusTreeViewNode(TreeViewNode, FocusWidget):
         if self.__class__ is FocusTreeViewNode:
             raise TreeViewException('You cannot use FocusTreeViewNode directly.')
 
-        #if hasattr(self, 'focus'):
-        #    self.bind(is_selected=self._set_focus)
+        if hasattr(self, 'focus'):
+            self.bind(is_selected=self._set_focus)
 
         super().__init__(**kwargs)
 
