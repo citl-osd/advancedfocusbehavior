@@ -1,6 +1,8 @@
 import kivy
 kivy.require('1.11.1')
 
+from kivy.factory import Factory
+
 from kivy.event import EventDispatcher
 from kivy.uix.accordion import Accordion
 # TODO: action bar
@@ -11,7 +13,8 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.codeinput import CodeInput
 from kivy.uix.colorpicker import ColorPicker
 from kivy.uix.dropdown import DropDown
-from kivy.uix.filechooser import FileChooser, FileChooserListView, FileChooserIconView
+from kivy.uix.filechooser import FileChooser, FileChooserListView, FileChooserIconView, \
+                                FileChooserController, FileChooserListLayout
 from kivy.uix.label import Label
 #from kivy.uix.modalview import ModalView
 #from kivy.uix.popup import Popup
@@ -336,6 +339,8 @@ class FocusTreeView(FocusAwareWidget, TreeView):
         if focus_return:
             focus_return.focus = True
 
+Factory.register('FocusTreeView', cls=FocusTreeView)
+
 
 class FocusTreeViewNode(TreeViewNode, FocusWidget):
     """"""
@@ -359,9 +364,12 @@ class FocusTreeViewNode(TreeViewNode, FocusWidget):
         key = keycode[1]
         if key in ('enter', 'numpadenter'):
             self.tree.toggle_node(self)
+            self.tree.select_node(self)
             return True
 
         return False
+
+Factory.register('FocusTreeViewNode', cls=FocusTreeViewNode)
 
 
 class FocusTreeViewLabel(Label, FocusTreeViewNode):
@@ -427,3 +435,12 @@ class FocusVideoPlayer(FocusWidget, VideoPlayer):
             return False
 
         return True
+
+
+class FocusFileChooserListView(FileChooserController):
+    pass
+
+
+class FocusFileChooserListLayout(FileChooserListLayout):
+    VIEWNAME = 'focuslist'
+    _ENTRY_TEMPLATE = 'FocusFileListEntry'
