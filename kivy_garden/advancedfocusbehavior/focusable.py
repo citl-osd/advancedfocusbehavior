@@ -30,6 +30,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.treeview import TreeView, TreeViewNode
 from kivy.uix.videoplayer import VideoPlayer
+from kivy.uix.widget import Widget
 
 from math import sqrt
 import weakref
@@ -320,15 +321,16 @@ class FocusTreeView(FocusAwareWidget, TreeView):
         TreeView.__init__(self, **kwargs)
 
     def add_node(self, node, parent=None):
-        super().add_node(node, parent)
-        node.tree = weakref.proxy(self)
-        return node
+        n = super().add_node(node, parent)
+        n.tree = weakref.proxy(self)
+        return n
 
     def remove_node(self, node):
         super().remove_node(node)
-        del node.tree
+        node.tree = None
 
     def _do_layout(self, tree_node):
+        print(f'outer _do_layout {self}')
         focus_return = None
         for node in self.iterate_open_nodes():
             if hasattr(node, 'focus') and node.focus:
@@ -352,7 +354,6 @@ class FocusTreeViewNode(TreeViewNode, FocusWidget):
             self.bind(is_selected=self._set_focus)
 
         super().__init__(**kwargs)
-
 
     def _set_focus(self, widg, val):
         self.is_focusable = val
@@ -437,10 +438,14 @@ class FocusVideoPlayer(FocusWidget, VideoPlayer):
         return True
 
 
-class FocusFileChooserListView(FileChooserController):
-    pass
+class FocusFileChooserListView(FileChooserListView):
+    _ENTRY_TEMPLATE = 'FocusFileListEntry'
+
+Factory.register('FocusFileChooserListView', cls=FocusFileChooserListView)
 
 
 class FocusFileChooserListLayout(FileChooserListLayout):
     VIEWNAME = 'focuslist'
     _ENTRY_TEMPLATE = 'FocusFileListEntry'
+
+Factory.register('FocusFileChooserListLayout', cls=FocusFileChooserListLayout)

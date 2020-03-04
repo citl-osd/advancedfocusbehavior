@@ -123,3 +123,4 @@ dmypy.json
 .pyre/
 
 fake.py
+temp_reqs.txt
