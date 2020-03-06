@@ -438,7 +438,7 @@ class FocusVideoPlayer(FocusWidget, VideoPlayer):
         return True
 
 
-class FocusFileChooserListView(FileChooserListView):
+class FocusFileChooserListView(FileChooserController):
     _ENTRY_TEMPLATE = 'FocusFileListEntry'
 
 Factory.register('FocusFileChooserListView', cls=FocusFileChooserListView)
