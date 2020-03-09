@@ -18,6 +18,7 @@ from kivy.uix.behaviors.focus import FocusBehavior
 from kivy.uix.behaviors.togglebutton import ToggleButtonBehavior
 from kivy.uix.carousel import Carousel
 from kivy.uix.screenmanager import ScreenManager
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.widget import Widget
 
 from collections import deque
@@ -162,6 +163,13 @@ class FocusWidget(FocusBehavior, FocusAwareWidget):
 
     def focus_change(self, widg, focus):
         # TODO: assure that this widget is visible when it gains focus
+        current = widg
+        while isinstance(current.parent, Widget):
+            if isinstance(current.parent, ScrollView):
+                current.parent.scroll_to(widg)   # should this animate?
+
+            current = current.parent
+
         if focus:
             # Make sure that other focused widget, if it exists, gets defocused
             # first to maintain consistency in the FocusAware tree

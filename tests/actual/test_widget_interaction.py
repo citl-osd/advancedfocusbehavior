@@ -5,6 +5,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 from kivy.uix.tabbedpanel import TabbedPanelItem
 from kivy.uix.treeview import TreeViewLabel
@@ -462,6 +463,34 @@ def test_scroll_view():
     for widg in (instructions, sv, button_container):
         container.add_widget(widg)
 
+    app.root.add_widget(container)
+    return True
+
+
+@run_in_app(app_class=CheckActionApp, timeout=25)
+def test_focus_scroll_into_view():
+    app = App.get_running_app()
+    instructions = Label(text='Press the button within the ScrollView (by tabbing to it)')
+    scroll_container = FocusGridLayout(cols=10, size_hint=(None, None), size=(1000, 1000))
+    for _ in range(99):
+        scroll_container.add_widget(Label(text='Ignore me'))
+
+    def press(*args):
+        app.did_action = True
+        app.stop()
+
+    target_btn = FocusButton(text='Press me')
+    target_btn.bind(on_press=press)
+    scroll_container.add_widget(target_btn)
+
+    container = default_container()
+    first_focus = FocusButton(text='I should have focus first')
+    first_focus.focus = True
+    sv = ScrollView()
+    sv.add_widget(scroll_container)
+    container.add_widget(instructions)
+    container.add_widget(first_focus)
+    container.add_widget(sv)
     app.root.add_widget(container)
     return True
 
