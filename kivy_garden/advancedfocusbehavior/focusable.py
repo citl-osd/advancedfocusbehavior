@@ -25,6 +25,7 @@ from kivy.uix.scrollview import ScrollView
 # TODO: settings
 from kivy.uix.slider import Slider
 from kivy.uix.spinner import Spinner
+from kivy.uix.switch import Switch
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.textinput import TextInput
 from kivy.uix.togglebutton import ToggleButton
@@ -265,6 +266,20 @@ class FocusSpinner(FocusWidget, Spinner):
     """"""
 
 
+class FocusSwitch(FocusWidget, Switch):
+    def __init__(self, **kwargs):
+        FocusWidget.__init__(self, **kwargs)
+        Switch.__init__(self, **kwargs)
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        key = keycode[1]
+        if key in ('enter', 'numpadenter'):
+            self.active = not self.active
+            return True
+
+        return super().keyboard_on_key_down(window, keycode, text, modifiers)
+
+
 class FocusTabbedPanel(FocusWidget, TabbedPanel):
     """"""
     def __init__(self, **kwargs):
@@ -303,7 +318,6 @@ class FocusTextInput(FocusWidget, TextInput):   # TextInput already uses FocusBe
         self.draw_focus = False
         TextInput.__init__(self, write_tab=False, **kwargs)
         FocusWidget.__init__(self, draw_focus=False, **kwargs)
-        self.write_tab = False
 
 
 class FocusToggleButton(FocusToggleButtonBehavior, FocusWidget, ToggleButton):

@@ -495,6 +495,30 @@ def test_focus_scroll_into_view():
     return True
 
 
+@run_in_app(app_class=CheckActionApp, timeout=20)
+def test_focus_switch():
+    app = App.get_running_app()
+    instructions = Label(text='Activate all of these switches')
+    switches = [FocusSwitch() for _ in range(3)]
+
+    def done(*args):
+        if all(switch.active for switch in switches):
+            app.did_action = True
+            app.stop()
+
+    submit = FocusButton(text='Submit')
+    submit.bind(on_press=done)
+
+    container = default_container()
+    container.add_widget(instructions)
+    for switch in switches:
+        container.add_widget(switch)
+
+    container.add_widget(submit)
+    app.root.add_widget(container)
+    return True
+
+
 class TreeViewFocusButton(FocusTreeViewNode, FocusButton):
     def __init__(self, **kwargs):
         FocusTreeViewNode.__init__(self, **kwargs)
