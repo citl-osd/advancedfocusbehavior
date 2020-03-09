@@ -1,4 +1,6 @@
-""""""
+"""
+This module contains the critical new behaviors of Advanced Focus Behaviors.
+"""
 
 import kivy
 kivy.require('1.11.1')
@@ -31,7 +33,9 @@ HIGHLIGHT = (0.4471, 0.7765, 0.8118, 1)     # Blue
 
 
 class FocusAwareWidget:
-    """"""
+    """
+    A widget that cannot receive focus, but helps manage the focus of its children.
+    """
     def __init__(self, **kwargs):
         #super().__init__(**kwargs)
         self.focus_target = None
@@ -66,12 +70,22 @@ class FocusAwareWidget:
 
 
     def is_parent_aware(self):
-        """"""
+        """
+        Checks if the parent of this widget is focus aware.
+
+        :return: :data:`True` if this widget's parent is focus aware, :data:`False` otherwise
+        :rtype: :class:`bool`
+        """
         return isinstance(self.parent, FocusAwareWidget)
 
 
     def find_focus_target(self):
-        """"""
+        """
+        Find the current focus target in the focus-aware portion of the widget tree.
+
+        :return: Focus target
+        :rtype: :class:`FocusWidget`
+        """
         if self.focus_target:
             return self.focus_target
 

@@ -22,7 +22,7 @@
     on_entries_cleared: treeview.root.nodes = []
     on_subentry_to_entry: not args[2].locked and treeview.add_node(args[1], args[2])
     on_remove_subentry: args[2].nodes = []
-    BoxLayout:
+    FocusBoxLayout:
         pos: root.pos
         size: root.size
         size_hint: None, None
