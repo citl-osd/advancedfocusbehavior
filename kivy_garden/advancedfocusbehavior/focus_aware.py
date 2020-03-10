@@ -1,8 +1,6 @@
 """
 This module contains a variety of focus-aware widgets, meaning that, while they
 cannot receive focus, they help manage the focus of widgets beneath them.
-
-All widgets in this module inherit from :class:`FocusAwareWidget`.
 """
 
 

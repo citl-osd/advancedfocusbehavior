@@ -22,7 +22,6 @@ def default_container():
 
 
 class CheckActionApp(App):
-    """"""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.did_action = False
@@ -32,6 +31,16 @@ class CheckActionApp(App):
         super().stop()
         assert self.did_action
 
+
+class CheckFocusActionApp(FocusApp):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.did_action = False
+
+
+    def stop(self):
+        super().stop()
+        assert self.did_action
 
 # TODO: move to different file
 @run_in_app(app_class=CheckActionApp)
@@ -101,6 +110,29 @@ def test_cycle_through_focusables():
 
     app.root.add_widget(container)
     assert first.focus
+    return True
+
+
+@run_in_app(app_class=CheckFocusActionApp, timeout=15)
+def test_focus_from_nothing():
+    app = App.get_running_app()
+    instructions = Label(text='Press any button')
+    container = default_container()
+    container.add_widget(instructions)
+
+    def press(*args):
+        app.did_action = True
+        app.stop()
+
+    for _ in range(5):
+        btn = FocusButton(text='Press me', on_press=press)
+        container.add_widget(btn)
+
+    for widg in container.children:
+        if hasattr(widg, 'focus'):
+            widg.focus = False
+
+    app.root.add_widget(container)
     return True
 
 

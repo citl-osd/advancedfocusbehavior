@@ -16,6 +16,7 @@ Builder.load_file(
 
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.core.window import Window
 from kivy.event import EventDispatcher
 from kivy.graphics import Color, Rectangle
 from kivy.uix.accordion import AccordionItem
@@ -291,3 +292,52 @@ def incr(value, max_val, step):
 
 def decr(value, min_val, step):
     return max(value - step, min_val)
+
+
+def bfs_walk(widget):
+    if not widget:
+        return
+
+    dq = deque()
+    dq.append(widget)
+
+    while dq:
+        next_widget = dq.popleft()
+        yield next_widget
+        if isinstance(next_widget, Carousel):
+            children = next_widget.slides
+
+        elif isinstance(next_widget, ScreenManager):
+            children = next_widget.screens
+
+        elif isinstance(next_widget, AccordionItem):
+            children = next_widget.container.children
+
+        else:
+            children = next_widget.children
+
+        dq.extend(children)
+
+
+class FocusApp(App):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(on_key_down=self.check_focus)
+
+    def check_focus(self, window, key, scancode, codepoint, modifier):
+        if key != 9:    # Tab (TODO: find/create constant)
+            return False
+
+        first_focus = None
+        for widg in bfs_walk(self.root):
+            if hasattr(widg, 'focus'):
+                first_focus = widg
+
+            if isinstance(widg, FocusAwareWidget) and widg.focus_target:
+                return False
+
+        if first_focus:
+            first_focus.focus = True
+            return True
+
+        return False
