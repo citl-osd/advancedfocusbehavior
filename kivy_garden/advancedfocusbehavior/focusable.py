@@ -1,10 +1,12 @@
 import kivy
+
 kivy.require('1.11.1')
 
 from kivy.factory import Factory
 
 from kivy.event import EventDispatcher
 from kivy.uix.accordion import Accordion
+
 # TODO: action bar
 
 from kivy.uix.button import Button
@@ -13,15 +15,22 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.codeinput import CodeInput
 from kivy.uix.colorpicker import ColorPicker
 from kivy.uix.dropdown import DropDown
-from kivy.uix.filechooser import FileChooser, FileChooserListView, FileChooserIconView, \
-                                FileChooserController, FileChooserListLayout
+from kivy.uix.filechooser import (
+    FileChooser,
+    FileChooserListView,
+    FileChooserIconView,
+    FileChooserController,
+    FileChooserListLayout,
+)
 from kivy.uix.label import Label
-#from kivy.uix.modalview import ModalView
-#from kivy.uix.popup import Popup
-#from kivy.uix.pagelayout import PageLayout
+
+# from kivy.uix.modalview import ModalView
+# from kivy.uix.popup import Popup
+# from kivy.uix.pagelayout import PageLayout
 # TODO: recycleview
 from kivy.uix.screenmanager import Screen
 from kivy.uix.scrollview import ScrollView
+
 # TODO: settings
 from kivy.uix.slider import Slider
 from kivy.uix.spinner import Spinner
@@ -36,17 +45,28 @@ from kivy.uix.widget import Widget
 from math import sqrt
 import weakref
 
-from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget, \
-            FocusWidget, FocusButtonBehavior, FocusToggleButtonBehavior, incr, \
-            decr, mods_to_step_size
+from kivy_garden.advancedfocusbehavior.behaviors import (
+    FocusAwareWidget,
+    FocusWidget,
+    FocusButtonBehavior,
+    FocusToggleButtonBehavior,
+    incr,
+    decr,
+    mods_to_step_size,
+)
 
 
 class FocusAccordion(FocusWidget, Accordion):
-    """"""
+    """
+    Focusable :class:`Accordion`.
+
+    While focused, the accordion can be cycled forward by pressing Ctrl+Tab, and
+    backward by pressing Shift+Ctrl+Tab.
+    """
+
     def __init__(self, **kwargs):
         FocusWidget.__init__(self, **kwargs)
         Accordion.__init__(self, **kwargs)
-
 
     def active_item(self):
         for i, child in enumerate(self.children):
@@ -55,28 +75,25 @@ class FocusAccordion(FocusWidget, Accordion):
 
         return None
 
-
     def select(self, instance):
-        #print('calling select')
         super().select(instance)
         for child in self.children:
             if isinstance(child, FocusAwareWidget):
                 child.set_focus_enabled(child is instance)
-
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if keycode[1] == 'tab' and 'ctrl' in modifiers:
             i, open_item = self.active_item()
             children = self.children
 
-            if 'shift' in modifiers:    # Backwards
+            if 'shift' in modifiers:  # Backwards
                 if i < len(children) - 1:
                     self.select(children[i + 1])
 
                 else:
                     self.select(children[0])
 
-            else:                       # Forwards
+            else:  # Forwards
                 if i > 0:
                     self.select(children[i - 1])
 
@@ -92,7 +109,10 @@ class FocusAccordion(FocusWidget, Accordion):
 
 
 class FocusButton(FocusButtonBehavior, Button, FocusWidget):
-    """"""
+    """
+    Focusable :class:`Button`.
+    """
+
     def __init__(self, **kwargs):
         FocusWidget.__init__(self, **kwargs)
         FocusButtonBehavior.__init__(self, **kwargs)
@@ -100,7 +120,12 @@ class FocusButton(FocusButtonBehavior, Button, FocusWidget):
 
 
 class FocusCarousel(FocusWidget, Carousel):
-    """"""
+    """
+    Focusable :class:`Carousel`.
+
+    While focused, the carousel can be navigated using the arrow keys.
+    """
+
     # (key, direction)
     keymap = {
         ('right', 'right'): 'next',
@@ -110,9 +135,8 @@ class FocusCarousel(FocusWidget, Carousel):
         ('up', 'top'): 'next',
         ('up', 'bottom'): 'prev',
         ('down', 'top'): 'prev',
-        ('down', 'bottom'): 'next'
+        ('down', 'bottom'): 'next',
     }
-
 
     def __init__(self, **kwargs):
         FocusWidget.__init__(self, **kwargs)
@@ -120,12 +144,10 @@ class FocusCarousel(FocusWidget, Carousel):
 
         self.bind(current_slide=self.on_change_slide)
 
-
     def add_widget(self, widget, index=0, canvas=None):
         Carousel.add_widget(self, widget, index=index, canvas=canvas)
         if len(self.slides) > 1 and isinstance(widget, FocusAwareWidget):
             widget.disable_focus()
-
 
     def on_change_slide(self, carousel, slide):
         if isinstance(slide, FocusAwareWidget):
@@ -134,7 +156,6 @@ class FocusCarousel(FocusWidget, Carousel):
         for s in self.slides:
             if s is not slide and isinstance(s, FocusAwareWidget):
                 s.disable_focus()
-
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
@@ -150,7 +171,10 @@ class FocusCarousel(FocusWidget, Carousel):
 
 
 class FocusCheckBox(FocusToggleButtonBehavior, FocusWidget, CheckBox):
-    """"""
+    """
+    Focusable :class:`CheckBox`.
+    """
+
     def __init__(self, **kwargs):
         FocusToggleButtonBehavior.__init__(self, **kwargs)
         FocusWidget.__init__(self, **kwargs)
@@ -158,7 +182,7 @@ class FocusCheckBox(FocusToggleButtonBehavior, FocusWidget, CheckBox):
 
 
 # FocusCodeInput might not be feasible b/c it needs tabs
-#class FocusCodeInput(FocusWidget, CodeInput)
+# class FocusCodeInput(FocusWidget, CodeInput)
 
 
 class FocusColorPicker(FocusWidget, ColorPicker):
@@ -166,7 +190,7 @@ class FocusColorPicker(FocusWidget, ColorPicker):
 
 
 # unnecessary; all focus functionality is encapsulated in children
-#class FocusDropDown(FocusWidget, DropDown):
+# class FocusDropDown(FocusWidget, DropDown):
 #    """"""
 
 
@@ -182,56 +206,65 @@ class FocusFileChooserIconView(FocusWidget, FileChooserIconView):
     """"""
 
 
-class FocusScreen(FocusWidget, Screen):
-    """"""
+# class FocusScreen(FocusWidget, Screen):
+#    """"""
 
 
 # settings
 
 
 class FocusScrollView(FocusWidget, ScrollView):
-    """"""
-    scroll_dist = 20    # TODO: base this on dpi instead?
+    """
+    Focusable :class:`ScrollView`.
+
+    While focused, the scoll view can be scrolled with the arrow keys.
+    """
+
+    scroll_dist = 20  # TODO: base this on dpi instead?
 
     def __init__(self, **kwargs):
         FocusWidget.__init__(self, **kwargs)
         ScrollView.__init__(self, **kwargs)
-
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
             return True
 
         key = keycode[1]
-        scroll_dist_x, scroll_dist_y = self.convert_distance_to_scroll(self.scroll_dist, self.scroll_dist)
+        scroll_dist_x, scroll_dist_y = self.convert_distance_to_scroll(
+            self.scroll_dist, self.scroll_dist
+        )
 
         if key == 'up':
             self.scroll_y = incr(self.scroll_y, 1, scroll_dist_y)
+            return True
 
         elif key == 'down':
             self.scroll_y = decr(self.scroll_y, 0, scroll_dist_y)
+            return True
 
         elif key == 'right':
             self.scroll_x = incr(self.scroll_x, 1, scroll_dist_x)
+            return True
 
         elif key == 'left':
             self.scroll_x = decr(self.scroll_x, 0, scroll_dist_x)
+            return True
 
-        else:
-            return False
-
-        return True
+        return False
 
 
 class FocusSlider(FocusWidget, Slider):
     """
+    Focusable :class:`Slider`.
 
-    controls:
-        +/- to increase/decrease value
-        hold shift to decrese sensitivity
-        hold alt to increase sensitivity
+    While focused, the slider can be adjusted with the + and - keys. Hold the Alt
+    key for fine control. Hold the Shift key for coarse control.
     """
-    def __init__(self, fine_control=None, medium_control=None, coarse_control=None, **kwargs):
+
+    def __init__(
+        self, fine_control=None, medium_control=None, coarse_control=None, **kwargs
+    ):
         FocusWidget.__init__(self, **kwargs)
         Slider.__init__(self, **kwargs)
 
@@ -239,9 +272,8 @@ class FocusSlider(FocusWidget, Slider):
         self.control_map = {
             'fine': fine_control or min(1, slider_range / 100),
             'medium': medium_control or sqrt(slider_range / 5),
-            'coarse': coarse_control or slider_range / 5
+            'coarse': coarse_control or slider_range / 5,
         }
-
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
@@ -267,6 +299,12 @@ class FocusSpinner(FocusWidget, Spinner):
 
 
 class FocusSwitch(FocusWidget, Switch):
+    """
+    Focusable :class:`Switch`.
+
+    While focused, the switch can be toggled with the Enter key.
+    """
+
     def __init__(self, **kwargs):
         FocusWidget.__init__(self, **kwargs)
         Switch.__init__(self, **kwargs)
@@ -281,11 +319,16 @@ class FocusSwitch(FocusWidget, Switch):
 
 
 class FocusTabbedPanel(FocusWidget, TabbedPanel):
-    """"""
+    """
+    Focusable :class:`TabbedPanel`.
+
+    While focused, the active tab can be cycled forward with Ctrl+Tab and
+    backward with Shift+Ctrl+Tab.
+    """
+
     def __init__(self, **kwargs):
         FocusWidget.__init__(self, **kwargs)
         TabbedPanel.__init__(self, **kwargs)
-
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if keycode[1] == 'tab' and 'ctrl' in modifiers:
@@ -293,14 +336,14 @@ class FocusTabbedPanel(FocusWidget, TabbedPanel):
             current_tab = self.current_tab
             current_idx = tab_list.index(current_tab)
 
-            if 'shift' in modifiers:    # Backwards
+            if 'shift' in modifiers:  # Backwards
                 if current_idx < len(tab_list) - 1:
                     self.switch_to(tab_list[current_idx + 1])
 
                 else:
                     self.switch_to(tab_list[0])
 
-            else:                       # Forwards
+            else:  # Forwards
                 if current_idx > 0:
                     self.switch_to(tab_list[current_idx - 1])
 
@@ -312,8 +355,13 @@ class FocusTabbedPanel(FocusWidget, TabbedPanel):
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
 
-class FocusTextInput(FocusWidget, TextInput):   # TextInput already uses FocusBehavior and highlights itself
-    """"""
+class FocusTextInput(
+    FocusWidget, TextInput
+):  # TextInput already uses FocusBehavior and highlights itself
+    """
+    Focusable :class:`TextInput`.
+    """
+
     def __init__(self, **kwargs):
         self.draw_focus = False
         TextInput.__init__(self, write_tab=False, **kwargs)
@@ -321,7 +369,10 @@ class FocusTextInput(FocusWidget, TextInput):   # TextInput already uses FocusBe
 
 
 class FocusToggleButton(FocusToggleButtonBehavior, FocusWidget, ToggleButton):
-    """"""
+    """
+    Focusable :class:`ToggleButton`.
+    """
+
     def __init__(self, **kwargs):
         FocusToggleButtonBehavior.__init__(self, **kwargs)
         FocusWidget.__init__(self, **kwargs)
@@ -329,7 +380,10 @@ class FocusToggleButton(FocusToggleButtonBehavior, FocusWidget, ToggleButton):
 
 
 class FocusTreeView(FocusAwareWidget, TreeView):
-    """"""
+    """
+    Focus-aware :class:`TreeView`.
+    """
+
     def __init__(self, **kwargs):
         FocusAwareWidget.__init__(self, **kwargs)
         TreeView.__init__(self, **kwargs)
@@ -355,11 +409,16 @@ class FocusTreeView(FocusAwareWidget, TreeView):
         if focus_return:
             focus_return.focus = True
 
+
 Factory.register('FocusTreeView', cls=FocusTreeView)
 
 
 class FocusTreeViewNode(TreeViewNode, FocusWidget):
-    """"""
+    """
+    Focusable :class:`TreeViewNode`. Like :class:`TreeViewNode`, this must be
+    subclassed and cannot be instantiated on its own.
+    """
+
     def __init__(self, **kwargs):
         if self.__class__ is FocusTreeViewNode:
             raise TreeViewException('You cannot use FocusTreeViewNode directly.')
@@ -384,6 +443,7 @@ class FocusTreeViewNode(TreeViewNode, FocusWidget):
 
         return False
 
+
 Factory.register('FocusTreeViewNode', cls=FocusTreeViewNode)
 
 
@@ -392,9 +452,25 @@ class FocusTreeViewLabel(Label, FocusTreeViewNode):
 
 
 class FocusVideoPlayer(FocusWidget, VideoPlayer):
-    """"""
-    def __init__(self, fine_control=None, medium_control=None, coarse_control=None,
-                    volume_interval=0.2, **kwargs):
+    """
+    Focusable :class:`VideoPlayer`.
+
+    While focused, the following controls are available:
+
+    - Play/pause with Space
+    - Increase/decrease volume with +/-
+    - Seek forward/backward in the video with ] and [. Hold Shift to seek faster
+        and Alt to seek slower.
+    """
+
+    def __init__(
+        self,
+        fine_control=None,
+        medium_control=None,
+        coarse_control=None,
+        volume_interval=0.2,
+        **kwargs,
+    ):
         FocusWidget.__init__(self, **kwargs)
         VideoPlayer.__init__(self, **kwargs)
         self.volume_interval = volume_interval
@@ -404,14 +480,12 @@ class FocusVideoPlayer(FocusWidget, VideoPlayer):
 
         self.bind(duration=self.set_control_map)
 
-
     def set_control_map(self, *args):
         self.control_map = {
             'fine': self.fine_control or min(1, self.duration / 100),
             'medium': self.medium_control or int(sqrt(self.duration / 5)),
-            'coarse': self.coarse_control or (self.duration // 5)
+            'coarse': self.coarse_control or (self.duration // 5),
         }
-
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
@@ -422,13 +496,16 @@ class FocusVideoPlayer(FocusWidget, VideoPlayer):
         # Pause/Play
         if key == 'spacebar':
             self.state = 'pause' if self.state == 'play' else 'play'
+            return True
 
         # Volume
         elif key == '=':
             self.volume = min(self.volume + self.volume_interval, 1)
+            return True
 
         elif key == '-':
             self.volume = max(self.volume - self.volume_interval, 0)
+            return True
 
         # Seeking
         elif key in (']', '['):
@@ -445,15 +522,15 @@ class FocusVideoPlayer(FocusWidget, VideoPlayer):
             else:
                 self.position = decr(self.position, 0, step)
 
-        # A key we don't care about
-        else:
-            return False
+            return True
 
-        return True
+        # A key we don't care about
+        return False
 
 
 class FocusFileChooserListView(FileChooserController):
     _ENTRY_TEMPLATE = 'FocusFileListEntry'
+
 
 Factory.register('FocusFileChooserListView', cls=FocusFileChooserListView)
 
@@ -461,5 +538,6 @@ Factory.register('FocusFileChooserListView', cls=FocusFileChooserListView)
 class FocusFileChooserListLayout(FileChooserListLayout):
     VIEWNAME = 'focuslist'
     _ENTRY_TEMPLATE = 'FocusFileListEntry'
+
 
 Factory.register('FocusFileChooserListLayout', cls=FocusFileChooserListLayout)

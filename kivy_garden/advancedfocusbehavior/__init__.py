@@ -1,12 +1,9 @@
 """
-Demo flower
+Advanced Focus Behavior
 ============
 
-Defines the Kivy garden :class:`FlowerLabel` class which is the widget provided
-by the demo flower.
+Defines all widgets and behaviors for Advanced Focus Behavior.
 """
-
-#__all__ = ('FlowerLabel', )
 
 __version__ = '0.1.0.dev0'
 

@@ -3,12 +3,16 @@ This module contains the critical new behaviors of Advanced Focus Behaviors.
 """
 
 import kivy
+
 kivy.require('1.11.1')
 
 from pathlib import Path
 
 from kivy.lang.builder import Builder
-Builder.load_file(str(Path(__file__).parent.joinpath('advancedfocusbehaviors.kv').resolve()))
+
+Builder.load_file(
+    str(Path(__file__).parent.joinpath('advancedfocusbehaviors.kv').resolve())
+)
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -28,18 +32,18 @@ from math import sqrt
 
 
 # Color constants
-BACKGROUND = (0, 0, 0, 1)                   # Black
-HIGHLIGHT = (0.4471, 0.7765, 0.8118, 1)     # Blue
+BACKGROUND = (0, 0, 0, 1)  # Black
+HIGHLIGHT = (0.4471, 0.7765, 0.8118, 1)  # Blue
 
 
 class FocusAwareWidget:
     """
     A widget that cannot receive focus, but helps manage the focus of its children.
     """
-    def __init__(self, **kwargs):
-        #super().__init__(**kwargs)
-        self.focus_target = None
 
+    def __init__(self, **kwargs):
+        # super().__init__(**kwargs)
+        self.focus_target = None
 
     def add_widget(self, widget, **kwargs):
         super().add_widget(widget, **kwargs)
@@ -51,23 +55,21 @@ class FocusAwareWidget:
             # New widget can be focused; use it!
             if isinstance(widget, FocusWidget):
                 widget.focus = True
-                #widget.set_focus_target(widget)
+                # widget.set_focus_target(widget)
 
             # New widget is an existing tree that has a focused element; use it!
             elif isinstance(widget, FocusAwareWidget) and widget.focus_target:
                 self.set_focus_target(widget.focus_target)
 
-
     def remove_widget(self, widget):
         if hasattr(widget, 'focus') and widget.focus:
             widget.focus = False
 
-            focus_next = widget.get_focus_next()    # could also be prev
+            focus_next = widget.get_focus_next()  # could also be prev
             if focus_next:
                 focus_next.focus = True
 
         super().remove_widget(widget)
-
 
     def is_parent_aware(self):
         """
@@ -77,7 +79,6 @@ class FocusAwareWidget:
         :rtype: :class:`bool`
         """
         return isinstance(self.parent, FocusAwareWidget)
-
 
     def find_focus_target(self):
         """
@@ -94,9 +95,15 @@ class FocusAwareWidget:
 
         return None
 
-
     def focus_first(self):
-        """"""
+        """
+        Focus the first widget in the widget tree that can receive focus, starting
+        with this.
+
+        :return: Newly focused widget, or :data:`None` if there was no widget that
+        could receive focus.
+        :rtype: :class:`Widget`
+        """
         for widg in self.walk(loopback=True):
             if hasattr(widg, 'focus'):
                 widg.focus = True
@@ -104,18 +111,29 @@ class FocusAwareWidget:
 
         return None
 
-
     def set_focus_target(self, new_target):
-        """"""
+        """
+        Set the focus target of this widget, as well as all of its focus-aware
+        parents.
+
+        :param new_target: New focus target.
+        :type new_target: :class:`Widget`
+        """
         if not (new_target and self.focus_target):
             self.focus_target = new_target
 
             if self.is_parent_aware():
                 self.parent.set_focus_target(new_target)
 
-
     def set_focus_enabled(self, state):
-        """"""
+        """
+        Enable/disable focus for this widget and all widgets beneath it in the
+        widget tree.
+
+        :param state: New focus state. If :data:`True`, focus is enabled. If
+            :data:`False`, focus is disabled.
+        :type state: :class:`bool`
+        """
         dq = deque()
         dq.append(self)
         last_focusable = None
@@ -147,22 +165,36 @@ class FocusAwareWidget:
             if focus_next:
                 focus_next.focus = True
 
-            elif state:     # get_focus_previous ignores self, which we want to focus
+            elif state:  # get_focus_previous ignores self, which we want to focus
                 last_focusable.focus = True
 
-
     def disable_focus(self):
+        """
+        Enables focus for this widget and all widgets beneath it in the widget
+        tree. Shortcut for :meth:`set_focus_enabled`.
+        """
         self.set_focus_enabled(False)
 
-
     def enable_focus(self):
+        """
+        Disables focus for this widget and all widgets beneath it in the widget
+        tree. Shortcut for :meth:`set_focus_enabled`.
+        """
         self.set_focus_enabled(True)
 
 
 class FocusWidget(FocusBehavior, FocusAwareWidget):
-    """"""
-    def __init__(self, highlight_color=HIGHLIGHT, highlight_bg_color=BACKGROUND,
-                 draw_focus=True, **kwargs):
+    """
+    A focusable :class:`Widget`.
+    """
+
+    def __init__(
+        self,
+        highlight_color=HIGHLIGHT,
+        highlight_bg_color=BACKGROUND,
+        draw_focus=True,
+        **kwargs
+    ):
 
         self.draw_focus = draw_focus
         self.highlight_color = highlight_color
@@ -174,13 +206,11 @@ class FocusWidget(FocusBehavior, FocusAwareWidget):
         if not hasattr(self, '_old_focus_next'):
             FocusBehavior.__init__(self, **kwargs)
 
-
     def focus_change(self, widg, focus):
-        # TODO: assure that this widget is visible when it gains focus
         current = widg
         while isinstance(current.parent, Widget):
             if isinstance(current.parent, ScrollView):
-                current.parent.scroll_to(widg)   # should this animate?
+                current.parent.scroll_to(widg)  # should this animate?
 
             current = current.parent
 
@@ -198,15 +228,16 @@ class FocusWidget(FocusBehavior, FocusAwareWidget):
 
 
 class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
-    """"""
+    """
+    Focus-enhanced version of :class:`ButtonBehavior`. Allows pressing buttons
+    with the Enter key.
+    """
+
     def __init__(self, **kwargs):
         if not hasattr(self, '_old_focus_next'):
             FocusBehavior.__init__(self, **kwargs)
 
         ButtonBehavior.__init__(self, **kwargs)
-
-        #self.bind(on_press=lambda *args: self.focus = True)
-
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
@@ -220,7 +251,11 @@ class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
 
 
 class FocusToggleButtonBehavior(FocusBehavior, ToggleButtonBehavior):
-    """"""
+    """
+    Focus-enhanced version of :class:`ToggleButtonBehavior`. Allows toggling with
+    the Enter key.
+    """
+
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
             return True
@@ -233,7 +268,14 @@ class FocusToggleButtonBehavior(FocusBehavior, ToggleButtonBehavior):
 
 
 def mods_to_step_size(mods):
-    """"""
+    """
+    Convert a set of modifier keys to a step size.
+
+    :param mods: Modifier keys.
+    :type mods: :class:`tuple`[:class:`str`]
+    :return: Step size, by name.
+    :rtype: :class:`str`
+    """
     if 'alt' in mods:
         return 'fine'
 
@@ -244,10 +286,8 @@ def mods_to_step_size(mods):
 
 
 def incr(value, max_val, step):
-    """"""
     return min(value + step, max_val)
 
 
 def decr(value, min_val, step):
-    """"""
     return max(value - step, min_val)
