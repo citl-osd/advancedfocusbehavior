@@ -4,21 +4,18 @@ This module contains the critical new behaviors of Advanced Focus Behaviors.
 
 import kivy
 
-kivy.require('1.11.1')
+kivy.require("1.11.1")
 
 from pathlib import Path
 
 from kivy.lang.builder import Builder
 
 Builder.load_file(
-    str(Path(__file__).parent.joinpath('advancedfocusbehaviors.kv').resolve())
+    str(Path(__file__).parent.joinpath("advancedfocusbehaviors.kv").resolve())
 )
 
 from kivy.app import App
-from kivy.clock import Clock
 from kivy.core.window import Window
-from kivy.event import EventDispatcher
-from kivy.graphics import Color, Rectangle
 from kivy.uix.accordion import AccordionItem
 from kivy.uix.behaviors.button import ButtonBehavior
 from kivy.uix.behaviors.focus import FocusBehavior
@@ -43,27 +40,22 @@ class FocusAwareWidget:
     """
 
     def __init__(self, **kwargs):
-        # super().__init__(**kwargs)
         self.focus_target = None
 
     def add_widget(self, widget, **kwargs):
         super().add_widget(widget, **kwargs)
 
-        # No existing focused widget
         current_focus = self.find_focus_target()
         if not current_focus:
 
-            # New widget can be focused; use it!
             if isinstance(widget, FocusWidget):
                 widget.focus = True
-                # widget.set_focus_target(widget)
 
-            # New widget is an existing tree that has a focused element; use it!
             elif isinstance(widget, FocusAwareWidget) and widget.focus_target:
                 self.set_focus_target(widget.focus_target)
 
     def remove_widget(self, widget):
-        if hasattr(widget, 'focus') and widget.focus:
+        if hasattr(widget, "focus") and widget.focus:
             widget.focus = False
 
             focus_next = widget.get_focus_next()  # could also be prev
@@ -106,7 +98,7 @@ class FocusAwareWidget:
         :rtype: :class:`Widget`
         """
         for widg in self.walk(loopback=True):
-            if hasattr(widg, 'focus'):
+            if hasattr(widg, "focus"):
                 widg.focus = True
                 return widg
 
@@ -204,14 +196,14 @@ class FocusWidget(FocusBehavior, FocusAwareWidget):
         FocusAwareWidget.__init__(self, **kwargs)
         self.bind(focus=self.focus_change)
 
-        if not hasattr(self, '_old_focus_next'):
+        if not hasattr(self, "_old_focus_next"):
             FocusBehavior.__init__(self, **kwargs)
 
     def focus_change(self, widg, focus):
         current = widg
         while isinstance(current.parent, Widget):
             if isinstance(current.parent, ScrollView):
-                current.parent.scroll_to(widg)  # should this animate?
+                current.parent.scroll_to(widg)
 
             current = current.parent
 
@@ -221,7 +213,7 @@ class FocusWidget(FocusBehavior, FocusAwareWidget):
 
             # TODO: speed this up, if possible
             for w in widg.walk_reverse(loopback=True):  # direction is arbitrary
-                if w is not widg and getattr(w, 'focus', False):
+                if w is not widg and getattr(w, "focus", False):
                     w.focus = False
                     break
 
@@ -235,7 +227,7 @@ class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
     """
 
     def __init__(self, **kwargs):
-        if not hasattr(self, '_old_focus_next'):
+        if not hasattr(self, "_old_focus_next"):
             FocusBehavior.__init__(self, **kwargs)
 
         ButtonBehavior.__init__(self, **kwargs)
@@ -244,8 +236,8 @@ class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
             return True
 
-        if keycode[1] in ('enter', 'numpadenter'):
-            self.dispatch('on_press')
+        if keycode[1] in ("enter", "numpadenter"):
+            self.dispatch("on_press")
             return True
 
         return False
@@ -261,7 +253,7 @@ class FocusToggleButtonBehavior(FocusBehavior, ToggleButtonBehavior):
         if super().keyboard_on_key_down(window, keycode, text, modifiers):
             return True
 
-        if keycode[1] in ('enter', 'numpadenter'):
+        if keycode[1] in ("enter", "numpadenter"):
             self._do_press()
             return True
 
@@ -277,13 +269,13 @@ def mods_to_step_size(mods):
     :return: Step size, by name.
     :rtype: :class:`str`
     """
-    if 'alt' in mods:
-        return 'fine'
+    if "alt" in mods:
+        return "fine"
 
-    elif 'shift' in mods:
-        return 'coarse'
+    elif "shift" in mods:
+        return "coarse"
 
-    return 'medium'
+    return "medium"
 
 
 def incr(value, max_val, step):
@@ -325,12 +317,12 @@ class FocusApp(App):
         Window.bind(on_key_down=self.check_focus)
 
     def check_focus(self, window, key, scancode, codepoint, modifier):
-        if key != 9:    # Tab (TODO: find/create constant)
+        if key != 9:  # Tab (TODO: find/create constant)
             return False
 
         first_focus = None
         for widg in bfs_walk(self.root):
-            if hasattr(widg, 'focus'):
+            if hasattr(widg, "focus"):
                 first_focus = widg
 
             if isinstance(widg, FocusAwareWidget) and widg.focus_target:

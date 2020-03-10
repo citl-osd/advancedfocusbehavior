@@ -6,7 +6,7 @@ cannot receive focus, they help manage the focus of widgets beneath them.
 
 import kivy
 
-kivy.require('1.11.1')
+kivy.require("1.11.1")
 
 from kivy.uix.accordion import AccordionItem
 from kivy.uix.anchorlayout import AnchorLayout

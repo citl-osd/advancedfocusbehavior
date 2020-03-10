@@ -5,7 +5,7 @@ Advanced Focus Behavior
 Defines all widgets and behaviors for Advanced Focus Behavior.
 """
 
-__version__ = '0.1.0.dev0'
+__version__ = "0.1.0.dev0"
 
 from pathlib import Path
 import sys
