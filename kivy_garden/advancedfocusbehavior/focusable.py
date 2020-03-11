@@ -49,6 +49,17 @@ from kivy_garden.advancedfocusbehavior.behaviors import (
 )
 
 
+class FocusTextInput(FocusWidget, TextInput):
+    """
+    Focusable :class:`TextInput`.
+    """
+
+    def __init__(self, **kwargs):
+        Widget.__init__(self, **kwargs)
+        TextInput.__init__(self, write_tab=False, **kwargs)
+        FocusWidget.__init__(self, draw_focus=False, **kwargs)
+
+
 class FocusAccordion(FocusWidget, Accordion):
     """
     Focusable :class:`Accordion`.
@@ -171,8 +182,20 @@ class FocusCheckBox(FocusToggleButtonBehavior, FocusWidget, CheckBox):
         CheckBox.__init__(self, **kwargs)
 
 
-class FocusColorPicker(FocusWidget, ColorPicker):
-    """"""
+class FocusColorPicker_Input(FocusTextInput):
+    def __init__(self, **kwargs):
+        print('FocusColorPicker_Input constructor')
+        super().__init__(**kwargs)
+
+
+class FocusColorPicker(FocusAwareWidget, ColorPicker):
+    """
+    Focusable :class:`ColorPicker`.
+    """
+
+    def __init__(self, **kwargs):
+        FocusAwareWidget.__init__(self, **kwargs)
+        ColorPicker.__init__(self, **kwargs)
 
 
 class FocusFileChooser(FocusWidget, FileChooser):
@@ -327,17 +350,6 @@ class FocusTabbedPanel(FocusWidget, TabbedPanel):
             return True
 
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
-
-
-class FocusTextInput(FocusWidget, TextInput):
-    """
-    Focusable :class:`TextInput`.
-    """
-
-    def __init__(self, **kwargs):
-        self.draw_focus = False
-        TextInput.__init__(self, write_tab=False, **kwargs)
-        FocusWidget.__init__(self, draw_focus=False, **kwargs)
 
 
 class FocusToggleButton(FocusToggleButtonBehavior, FocusWidget, ToggleButton):
