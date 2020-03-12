@@ -34,13 +34,14 @@ BACKGROUND = (0, 0, 0, 1)  # Black
 HIGHLIGHT = (0.4471, 0.7765, 0.8118, 1)  # Blue
 
 
-class FocusAwareWidget:
+class FocusAwareWidget(Widget):
     """
     A widget that cannot receive focus, but helps manage the focus of its children.
     """
 
     def __init__(self, **kwargs):
         self.focus_target = None
+        super().__init__(**kwargs)
 
     def add_widget(self, widget, **kwargs):
         super().add_widget(widget, **kwargs)
@@ -192,12 +193,8 @@ class FocusWidget(FocusBehavior, FocusAwareWidget):
         self.draw_focus = draw_focus
         self.highlight_color = highlight_color
         self.highlight_bg_color = highlight_bg_color
-
-        FocusAwareWidget.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.bind(focus=self.focus_change)
-
-        if not hasattr(self, "_old_focus_next"):
-            FocusBehavior.__init__(self, **kwargs)
 
     def focus_change(self, widg, focus):
         current = widg
@@ -225,12 +222,6 @@ class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
     Focus-enhanced version of :class:`ButtonBehavior`. Allows pressing buttons
     with the Enter key.
     """
-
-    def __init__(self, **kwargs):
-        if not hasattr(self, "_old_focus_next"):
-            FocusBehavior.__init__(self, **kwargs)
-
-        ButtonBehavior.__init__(self, **kwargs)
 
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         if super().keyboard_on_key_down(window, keycode, text, modifiers):

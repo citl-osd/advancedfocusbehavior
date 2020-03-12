@@ -30,19 +30,11 @@ class FocusAccordionItem(FocusAwareWidget, AccordionItem):
     Focus-aware :class:`AccordionItem`.
     """
 
-    def __init__(self, **kwargs):
-        FocusAwareWidget.__init__(self, **kwargs)
-        AccordionItem.__init__(self, **kwargs)
-
 
 class FocusAnchorLayout(FocusAwareWidget, AnchorLayout):
     """
     Focus-aware :class:`AnchorLayout`.
     """
-
-    def __init__(self, **kwargs):
-        AnchorLayout.__init__(self, **kwargs)
-        FocusAwareWidget.__init__(self, **kwargs)
 
 
 class FocusBoxLayout(FocusAwareWidget, BoxLayout):
@@ -50,29 +42,17 @@ class FocusBoxLayout(FocusAwareWidget, BoxLayout):
     Focus-aware :class:`BoxLayout`.
     """
 
-    def __init__(self, **kwargs):
-        BoxLayout.__init__(self, **kwargs)
-        FocusAwareWidget.__init__(self, **kwargs)
-
 
 class FocusFloatLayout(FocusAwareWidget, FloatLayout):
     """
     Focus-aware :class:`FloatLayout`.
     """
 
-    def __init__(self, **kwargs):
-        FloatLayout.__init__(self, **kwargs)
-        FocusAwareWidget.__init__(self, **kwargs)
-
 
 class FocusGridLayout(FocusAwareWidget, GridLayout):
     """
     Focus-aware :class:`GridLayout`.
     """
-
-    def __init__(self, **kwargs):
-        GridLayout.__init__(self, **kwargs)
-        FocusAwareWidget.__init__(self, **kwargs)
 
 
 class FocusModalView(FocusAwareWidget, ModalView):
@@ -81,8 +61,7 @@ class FocusModalView(FocusAwareWidget, ModalView):
     """
 
     def __init__(self, focus_return=None, **kwargs):
-        FocusAwareWidget.__init__(self, **kwargs)
-        ModalView.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.focus_return = focus_return
 
         self.bind(on_dismiss=self.lose_focus)
@@ -98,10 +77,6 @@ class FocusPageLayout(FocusAwareWidget, PageLayout):
     Focus-aware :class:`PageLayout`.
     """
 
-    def __init__(self, **kwargs):
-        PageLayout.__init__(self, **kwargs)
-        FocusAwareWidget.__init__(self, **kwargs)
-
 
 class FocusPopup(FocusModalView, Popup):
     """
@@ -109,7 +84,8 @@ class FocusPopup(FocusModalView, Popup):
     """
 
     def __init__(self, focus_return=None, **kwargs):
-        FocusModalView.__init__(self, focus_return=focus_return, **kwargs)
+        kwargs["focus_return"] = focus_return
+        super().__init__(**kwargs)
 
 
 class FocusRelativeLayout(FocusAwareWidget, RelativeLayout):
@@ -117,19 +93,11 @@ class FocusRelativeLayout(FocusAwareWidget, RelativeLayout):
     Focus-aware :class:`RelativeLayout`.
     """
 
-    def __init__(self, **kwargs):
-        RelativeLayout.__init__(self, **kwargs)
-        FocusAwareWidget.__init__(self, **kwargs)
-
 
 class FocusScatterLayout(FocusAwareWidget, ScatterLayout):
     """
     Focus-aware :class:`ScatterLayout`.
     """
-
-    def __init__(self, **kwargs):
-        ScatterLayout.__init__(self, **kwargs)
-        FocusAwareWidget.__init__(self, **kwargs)
 
 
 class FocusStackLayout(FocusAwareWidget, StackLayout):
@@ -137,19 +105,11 @@ class FocusStackLayout(FocusAwareWidget, StackLayout):
     Focus-aware :class:`StackLayout`.
     """
 
-    def __init__(self, **kwargs):
-        StackLayout.__init__(self, **kwargs)
-        FocusAwareWidget.__init__(self, **kwargs)
-
 
 class FocusScatter(FocusAwareWidget, Scatter):
     """
     Focus-aware :class:`Scatter`.
     """
-
-    def __init__(self, **kwargs):
-        Scatter.__init__(self, **kwargs)
-        FocusAwareWidget.__init__(self, **kwargs)
 
 
 class FocusScreenManager(FocusAwareWidget, ScreenManager):
@@ -157,12 +117,8 @@ class FocusScreenManager(FocusAwareWidget, ScreenManager):
     Focus-aware :class:`ScreenManager`.
     """
 
-    def __init__(self, **kwargs):
-        ScreenManager.__init__(self, **kwargs)
-        FocusAwareWidget.__init__(self, **kwargs)
-
     def add_widget(self, screen):
-        ScreenManager.add_widget(self, screen)
+        super().add_widget(screen)
         if len(self.screens) == 1:
             self.current_screen.focus_first()
 
@@ -181,9 +137,7 @@ class FocusScreen(FocusAwareWidget, Screen):
     """
 
     def __init__(self, **kwargs):
-        Screen.__init__(self, **kwargs)
-        FocusAwareWidget.__init__(self, **kwargs)
-
+        super().__init__(**kwargs)
         self.bind(on_enter=self.focus_first)
 
     def focus_first(self, *args):
