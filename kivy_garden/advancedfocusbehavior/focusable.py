@@ -55,7 +55,26 @@ class FocusTextInput(FocusWidget, TextInput):
     """
 
     def __init__(self, **kwargs):
-        super().__init__(write_tab=False, draw_focus=False, **kwargs)
+        kwargs["write_tab"] = False
+        kwargs["draw_focus"] = False
+        super().__init__(**kwargs)
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        # There is currently a bug in Kivy where modifiers gets converted from
+        # a list to a set in TextInput's keyboard_on_key_down before being sent
+        # to FocusBehavior's keyboard_on_key_down, and currently, the check for
+        # shift is implemented weirdly (it does ["shift"]==modifiers instead of
+        # "shift" in modifiers). If that gets fixed by Kivy in the future, this
+        # function can be deleted in its entirety.
+        if keycode[1] == "tab" and "shift" in modifiers:
+            next = self.get_focus_previous()
+            if next:
+                self.focus = False
+                next.focus = True
+
+            return True
+
+        return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
 
 class FocusAccordion(FocusWidget, Accordion):
