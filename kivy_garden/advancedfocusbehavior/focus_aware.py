@@ -11,6 +11,7 @@ kivy.require("1.11.1")
 from kivy.uix.accordion import AccordionItem
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.dropdown import DropDown
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.modalview import ModalView
@@ -145,3 +146,18 @@ class FocusScreen(FocusAwareWidget, Screen):
             if isinstance(widg, FocusWidget):
                 widg.focus = True
                 break
+
+
+class FocusDropDown(FocusAwareWidget, DropDown):
+    """
+    Focus-aware :class:`DropDown`.
+    """
+    def open(self, widget):
+        super().open(widget)
+        print('got opened')
+        self.enable_focus()
+
+    def dismiss(self, *args):
+        super().dismiss(*args)
+        print('got dismissed')
+        self.disable_focus()

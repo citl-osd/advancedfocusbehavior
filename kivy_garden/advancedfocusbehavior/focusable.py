@@ -26,7 +26,7 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.slider import Slider
-from kivy.uix.spinner import Spinner
+from kivy.uix.spinner import Spinner, SpinnerOption
 from kivy.uix.switch import Switch
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.textinput import TextInput
@@ -48,6 +48,8 @@ from kivy_garden.advancedfocusbehavior.behaviors import (
     mods_to_step_size,
 )
 
+from kivy_garden.advancedfocusbehavior.focus_aware import FocusDropDown
+
 
 class FocusTextInput(FocusWidget, TextInput):
     """
@@ -63,9 +65,9 @@ class FocusTextInput(FocusWidget, TextInput):
         # There is currently a bug in Kivy where modifiers gets converted from
         # a list to a set in TextInput's keyboard_on_key_down before being sent
         # to FocusBehavior's keyboard_on_key_down, and currently, the check for
-        # shift is implemented weirdly (it does ["shift"]==modifiers instead of
-        # "shift" in modifiers). If that gets fixed by Kivy in the future, this
-        # function can be deleted in its entirety.
+        # shift is implemented weirdly (it does ["shift"] == modifiers instead of
+        # "shift" in modifiers). If that gets fixed in the future, this function
+        # can be deleted in its entirety.
         if keycode[1] == "tab" and "shift" in modifiers:
             next = self.get_focus_previous()
             if next:
@@ -283,8 +285,26 @@ class FocusSlider(FocusWidget, Slider):
         return True
 
 
-class FocusSpinner(FocusWidget, Spinner):
-    """"""
+class FocusSpinnerOption(FocusButton, SpinnerOption):
+    """
+    Focusable :class:`SpinnerOption`.
+    """
+
+
+class FocusSpinner(FocusButton, Spinner):
+    """
+    Focusable :class:`Spinner`.
+    """
+    def __init__(self, dropdown_cls=FocusDropDown, option_cls=FocusSpinnerOption, **kwargs):
+        if not issubclass(dropdown_cls, FocusAwareWidget):
+            raise TypeError(f'DropDown class {dropdown_cls} is not focus aware')
+
+        if not hasattr(option_cls, 'focus'):
+            raise TypeError(f'Option class {option_cls} is not focusable')
+
+        kwargs['option_cls'] = option_cls
+        kwargs['dropdown_cls'] = dropdown_cls
+        super().__init__(**kwargs)
 
 
 class FocusSwitch(FocusWidget, Switch):

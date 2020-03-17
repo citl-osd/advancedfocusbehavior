@@ -233,6 +233,16 @@ class FocusButtonBehavior(ButtonBehavior, FocusBehavior):
 
         return False
 
+    def keyboard_on_key_up(self, window, keycode):
+        if super().keyboard_on_key_up(window, keycode):
+            return True
+
+        if keycode[1] in ("enter", "numpadenter"):
+            self.dispatch("on_release")
+            return True
+
+        return False
+
 
 class FocusToggleButtonBehavior(FocusBehavior, ToggleButtonBehavior):
     """
