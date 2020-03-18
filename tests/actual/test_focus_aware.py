@@ -143,7 +143,7 @@ def test_link_focus_loopback():
 def test_link_empty():
     focusables = []
     link_focus(focusables)
-    # should not throw IndexError
+    assert focusables == []
 
 
 def test_link_one():

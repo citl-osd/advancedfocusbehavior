@@ -309,10 +309,17 @@ class FocusSpinner(FocusButton, Spinner):
         kwargs["option_cls"] = option_cls
         kwargs["dropdown_cls"] = dropdown_cls
         super().__init__(**kwargs)
+        self.bind(is_open=FocusSpinner.handle_open_close)
 
     def handle_open_close(self, is_open):
-        if not is_open:
-            self.focus = True
+        print(f'spinner focus changed to {is_open}')
+        if is_open:
+            options = self._dropdown.children[0].children
+            if options:
+                self.focus_next = options[-1]
+                options[-1].focus_previous = self
+
+        self.focus = True
 
 
 class FocusSwitch(FocusWidget, Switch):

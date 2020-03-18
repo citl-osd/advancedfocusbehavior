@@ -160,8 +160,8 @@ class FocusDropDown(FocusAwareWidget, DropDown):
     def open(self, widget):
         super().open(widget)
         print("got opened")
+        link_focus(list(reversed(self.children[0].children)))
         print(self.children[0].children)
-        # link_focus(self.children[0].children)
         for child in self.children[0].children:
             child.enable_focus()
 
@@ -169,4 +169,6 @@ class FocusDropDown(FocusAwareWidget, DropDown):
         super().dismiss(*args)
         print("got dismissed")
         for child in self.children[0].children:
-            child.disable_focus()
+            child.disable_focus()   # BUG: this hangs when an option is selected
+
+        print("disabled focus")
