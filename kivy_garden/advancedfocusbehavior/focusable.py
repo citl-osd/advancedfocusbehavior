@@ -46,6 +46,7 @@ from kivy_garden.advancedfocusbehavior.behaviors import (
     incr,
     decr,
     mods_to_step_size,
+    link_focus,
 )
 
 from kivy_garden.advancedfocusbehavior.focus_aware import FocusDropDown
@@ -295,16 +296,23 @@ class FocusSpinner(FocusButton, Spinner):
     """
     Focusable :class:`Spinner`.
     """
-    def __init__(self, dropdown_cls=FocusDropDown, option_cls=FocusSpinnerOption, **kwargs):
+
+    def __init__(
+        self, dropdown_cls=FocusDropDown, option_cls=FocusSpinnerOption, **kwargs
+    ):
         if not issubclass(dropdown_cls, FocusAwareWidget):
-            raise TypeError(f'DropDown class {dropdown_cls} is not focus aware')
+            raise TypeError(f"DropDown class {dropdown_cls} is not focus aware")
 
-        if not hasattr(option_cls, 'focus'):
-            raise TypeError(f'Option class {option_cls} is not focusable')
+        if not hasattr(option_cls, "focus"):
+            raise TypeError(f"Option class {option_cls} is not focusable")
 
-        kwargs['option_cls'] = option_cls
-        kwargs['dropdown_cls'] = dropdown_cls
+        kwargs["option_cls"] = option_cls
+        kwargs["dropdown_cls"] = dropdown_cls
         super().__init__(**kwargs)
+
+    def handle_open_close(self, is_open):
+        if not is_open:
+            self.focus = True
 
 
 class FocusSwitch(FocusWidget, Switch):

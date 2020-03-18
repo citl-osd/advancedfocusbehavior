@@ -23,7 +23,11 @@ from kivy.uix.scatterlayout import ScatterLayout
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 
-from kivy_garden.advancedfocusbehavior.behaviors import FocusAwareWidget, FocusWidget
+from kivy_garden.advancedfocusbehavior.behaviors import (
+    FocusAwareWidget,
+    FocusWidget,
+    link_focus,
+)
 
 
 class FocusAccordionItem(FocusAwareWidget, AccordionItem):
@@ -152,12 +156,17 @@ class FocusDropDown(FocusAwareWidget, DropDown):
     """
     Focus-aware :class:`DropDown`.
     """
+
     def open(self, widget):
         super().open(widget)
-        print('got opened')
-        self.enable_focus()
+        print("got opened")
+        print(self.children[0].children)
+        # link_focus(self.children[0].children)
+        for child in self.children[0].children:
+            child.enable_focus()
 
     def dismiss(self, *args):
         super().dismiss(*args)
-        print('got dismissed')
-        self.disable_focus()
+        print("got dismissed")
+        for child in self.children[0].children:
+            child.disable_focus()

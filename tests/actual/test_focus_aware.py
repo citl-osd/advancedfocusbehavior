@@ -5,7 +5,7 @@ from kivy.uix.label import Label
 
 from common import run_in_app
 
-from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton
+from kivy_garden.advancedfocusbehavior import FocusBoxLayout, FocusButton, link_focus
 
 def test_get_focus_upon_entering():
     # If there are no focused widgets, the first focusable widget should receive focus
@@ -117,3 +117,46 @@ def test_reenable_focus():
 
     container.set_focus_enabled(True)
     assert btn.focus
+
+
+def test_link_focus_no_loopback():
+    focusables = [FocusButton() for _ in range(10)]
+    link_focus(focusables)
+    for i, widget in enumerate(focusables):
+        if i > 0:
+            assert widget.focus_previous is focusables[i - 1]
+        if i < len(focusables) - 1:
+            assert widget.focus_next is focusables[i + 1]
+
+    assert focusables[0].focus_previous is None
+    assert focusables[-1].focus_next is None
+
+
+def test_link_focus_loopback():
+    focusables = [FocusButton() for _ in range(10)]
+    link_focus(focusables, loopback=True)
+    for i, widget in enumerate(focusables):
+        assert widget.focus_previous is focusables[(i - 1) % len(focusables)]
+        assert widget.focus_next is focusables[(i + 1) % len(focusables)]
+
+
+def test_link_empty():
+    focusables = []
+    link_focus(focusables)
+    # should not throw IndexError
+
+
+def test_link_one():
+    btn = FocusButton()
+    focusables = [btn]
+    link_focus(focusables)
+    assert btn.focus_previous is None
+    assert btn.focus_next is None
+
+
+def test_link_one_loopback():
+    btn = FocusButton()
+    focusables = [btn]
+    link_focus(focusables, loopback=True)
+    assert btn.focus_previous is None
+    assert btn.focus_next is None

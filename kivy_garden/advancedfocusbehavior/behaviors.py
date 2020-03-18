@@ -26,12 +26,37 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.widget import Widget
 
 from collections import deque
+from itertools import chain
 from math import sqrt
 
 
 # Color constants
 BACKGROUND = (0, 0, 0, 1)  # Black
 HIGHLIGHT = (0.4471, 0.7765, 0.8118, 1)  # Blue
+
+
+def link_focus(focusables, loopback=False):
+    """
+    Create a focus chain for a list of focusable widgets, such that each widget's
+    :attr:`FocusBehavior.focus_previous` is the previous widget in the list, and each
+    widget's :attr:`FocusBehavior.focus_next` is the next widget in the list.
+
+    :param focusables: Widgets to link focus for.
+    :type focusables: :class:`list`[:class:`FocusBehavior`]
+    :param loopback: If :data:`True`, the first and last elements of :paramref:`focusables`
+    will be linked.
+    :type loopback: :class:`bool`
+    """
+    if len(focusables) <= 1:
+        return
+
+    prefix = focusables[-1] if loopback else None
+    postfix = focusables[0] if loopback else None
+    prev_iter = chain([prefix], focusables[:-1])
+    next_iter = chain(focusables[1:], [postfix])
+    for prev_w, curr_w, next_w in zip(prev_iter, focusables, next_iter):
+        curr_w.focus_previous = prev_w
+        curr_w.focus_next = next_w
 
 
 class FocusAwareWidget(Widget):
