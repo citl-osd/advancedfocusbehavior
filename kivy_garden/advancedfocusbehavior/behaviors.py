@@ -159,6 +159,7 @@ class FocusAwareWidget(Widget):
 
         while dq:
             next_widget = dq.popleft()
+            print(next_widget)
             if isinstance(next_widget, FocusWidget):
                 next_widget.is_focusable = state
                 last_focusable = next_widget
