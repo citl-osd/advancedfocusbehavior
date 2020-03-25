@@ -160,7 +160,7 @@ class FocusDropDown(FocusAwareWidget, DropDown):
     def open(self, widget):
         super().open(widget)
         print("got opened")
-        #link_focus(self.container.children)
+        # link_focus(self.container.children)
         print(self.container.children)
         for child in self.container.children:
             child.enable_focus()

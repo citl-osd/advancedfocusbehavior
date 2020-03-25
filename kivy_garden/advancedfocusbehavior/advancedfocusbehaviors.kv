@@ -17,7 +17,8 @@
             size: self.width - 4, self.height - 4
 
 
-<FocusFileChooserListLayout@FileChooserListLayout>:
+#<FocusFileChooserListLayout@FileChooserListLayout>:
+<FocusFileChooserListLayout>
     on_entry_added: treeview.add_node(args[1])
     on_entries_cleared: treeview.root.nodes = []
     on_subentry_to_entry: not args[2].locked and treeview.add_node(args[1], args[2])
@@ -69,7 +70,8 @@
                     on_node_collapse: root.controller.close_subselection(args[1])
 
 
-<FocusFileChooserListView@FileChooserListView>:
+#<FocusFileChooserListView@FileChooserListView>:
+<FocusFileChooserListView>
     layout: layout
     FocusFileChooserListLayout:
         id: layout

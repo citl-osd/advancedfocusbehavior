@@ -395,7 +395,7 @@ class FocusTreeView(FocusAwareWidget, TreeView):
         super().remove_node(node)
         node.tree = None
 
-    def _do_layout(self, tree_node):
+    def _do_layout(self, *args):
         print(f"outer _do_layout {self}")
         focus_return = None
         for node in self.iterate_open_nodes():
@@ -403,7 +403,7 @@ class FocusTreeView(FocusAwareWidget, TreeView):
                 focus_return = node
                 break
 
-        super()._do_layout(tree_node)
+        super()._do_layout(*args)
         if focus_return:
             focus_return.focus = True
 
